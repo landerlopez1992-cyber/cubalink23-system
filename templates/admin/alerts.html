@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.app_name }} - Gestión de Alertas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin-common.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-3">
+                <div class="text-center mb-4">
+                    <img src="/static/img/company-logo.svg" alt="Cubalink23 Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4 class="text-white">{{ config.app_name }}</h4>
+                    <small class="text-white-50">Panel de Administración</small>
+                </div>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="/admin/">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="/admin/users">
+                        <i class="fas fa-users me-2"></i> Usuarios
+                    </a>
+                    <a class="nav-link" href="/admin/products">
+                        <i class="fas fa-box me-2"></i> Productos
+                    </a>
+                    <a class="nav-link" href="/admin/orders">
+                        <i class="fas fa-shopping-cart me-2"></i> Órdenes
+                    </a>
+                    <a class="nav-link" href="/admin/flights">
+                        <i class="fas fa-plane me-2"></i> Vuelos
+                    </a>
+                    <a class="nav-link" href="/admin/system">
+                        <i class="fas fa-cog me-2"></i> Sistema
+                    </a>
+                    <a class="nav-link" href="/admin/vendors">
+                        <i class="fas fa-store me-2"></i> Vendedores
+                    </a>
+                    <a class="nav-link" href="/admin/drivers">
+                        <i class="fas fa-motorcycle me-2"></i> Repartidores
+                    </a>
+                    <a class="nav-link" href="/admin/vehicles">
+                        <i class="fas fa-car me-2"></i> Renta Car
+                    </a>
+                    <a class="nav-link" href="/admin/support-chat">
+                        <i class="fas fa-headset me-2"></i> Chat de Soporte
+                    </a>
+                    <a class="nav-link active" href="/admin/alerts">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Alertas
+                    </a>
+                    <a class="nav-link" href="/admin/wallet">
+                        <i class="fas fa-wallet me-2"></i> Billetera
+                    </a>
+                    <a class="nav-link" href="/admin/payment-methods">
+                        <i class="fas fa-credit-card me-2"></i> Métodos de Pago
+                    </a>
+                    <a class="nav-link" href="/admin/payroll">
+                        <i class="fas fa-money-bill-wave me-2"></i> Nómina
+                    </a>
+                    <a class="nav-link mt-4" href="/auth/logout">
+                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Gestión de Alertas</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshAlerts()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn btn-success" onclick="markAllAsRead()">
+                            <i class="fas fa-check-double"></i> Marcar Todo como Leído
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
+                                <h3 id="total-alerts">-</h3>
+                                <p class="mb-0">Alertas Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-mobile-alt fa-2x text-warning mb-2"></i>
+                                <h3 id="dingconnect-alerts">-</h3>
+                                <p class="mb-0">DingConnect API</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-2x text-info mb-2"></i>
+                                <h3 id="delayed-orders">-</h3>
+                                <p class="mb-0">Pedidos Atrasados</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-store fa-2x text-warning mb-2"></i>
+                                <h3 id="vendor-delays">-</h3>
+                                <p class="mb-0">Demoras Vendedores</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <ul class="nav nav-tabs mb-4" id="alertTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="all-alerts-tab" data-bs-toggle="tab" data-bs-target="#all-alerts" type="button" role="tab">
+                            <i class="fas fa-list"></i> Todas las Alertas
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="dingconnect-tab" data-bs-toggle="tab" data-bs-target="#dingconnect" type="button" role="tab">
+                            <i class="fas fa-mobile-alt"></i> DingConnect API
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="delayed-tab" data-bs-toggle="tab" data-bs-target="#delayed" type="button" role="tab">
+                            <i class="fas fa-clock"></i> Pedidos Atrasados
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="vendor-tab" data-bs-toggle="tab" data-bs-target="#vendor" type="button" role="tab">
+                            <i class="fas fa-store"></i> Demoras Vendedores
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="alertTabContent">
+                    <!-- All Alerts Tab -->
+                    <div class="tab-pane fade show active" id="all-alerts" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-list"></i> Todas las Alertas del Sistema</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="alerts-container">
+                                    <!-- Las alertas se cargarán dinámicamente aquí -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DingConnect API Tab -->
+                    <div class="tab-pane fade" id="dingconnect" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-mobile-alt"></i> Alertas de DingConnect API</h5>
+                                <small class="text-muted">Saldo insuficiente para recargas - Admin ve alerta completa, usuario solo ve "recarga pendiente en trámite"</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Usuario</th>
+                                                <th>Operador</th>
+                                                <th>Monto</th>
+                                                <th>Error</th>
+                                                <th>Fecha</th>
+                                                <th>Estado</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dingconnect-table">
+                                            <tr>
+                                                <td colspan="8" class="text-center">No hay alertas de DingConnect</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delayed Orders Tab -->
+                    <div class="tab-pane fade" id="delayed" role="tabpanel">
+                        <div class="alert alert-info mb-3">
+                            <h6><i class="fas fa-info-circle me-2"></i>Sistema de Alertas Automáticas</h6>
+                            <p class="mb-0">Si pedido se demora más del tiempo estimado: sistema envía alerta automática al administrador + mensaje de preocupación del cliente.</p>
+                        </div>
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-clock"></i> Pedidos Atrasados (Entregas Demoradas)</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Pedido</th>
+                                                <th>Cliente</th>
+                                                <th>Productos</th>
+                                                <th>Fecha Pedido</th>
+                                                <th>Tiempo Atraso</th>
+                                                <th>Repartidor</th>
+                                                <th>Chat</th>
+                                                <th>Estado</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="delayed-orders-table">
+                                            <tr>
+                                                <td>#ORD-002</td>
+                                                <td>Ana López</td>
+                                                <td>Producto A, Producto B</td>
+                                                <td>2024-01-14</td>
+                                                <td>2 días</td>
+                                                <td>Carlos López</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info" onclick="openChat('delayed', 2)">
+                                                        <i class="fas fa-comments"></i>
+                                                    </button>
+                                                </td>
+                                                <td><span class="badge bg-warning">En Tránsito</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary">Contactar</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vendor Delays Tab -->
+                    <div class="tab-pane fade" id="vendor" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-store"></i> Demoras de Vendedores (Procesamiento Lento)</h5>
+                                <small class="text-muted">Vendedores que no han procesado pedidos después de que el usuario compró y pagó</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Pedido</th>
+                                                <th>Cliente</th>
+                                                <th>Vendedor</th>
+                                                <th>Productos</th>
+                                                <th>Fecha Compra</th>
+                                                <th>Tiempo Demora</th>
+                                                <th>Estado</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="vendor-delays-table">
+                                            <tr>
+                                                <td colspan="8" class="text-center">No hay demoras de vendedores</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Detail Modal -->
+    <div class="modal fade" id="alertDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles de la Alerta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="alert-detail-content">
+                    <!-- Content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-success" onclick="resolveAlert()">Resolver Alerta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAlertsData();
+        });
+
+        function loadAlertsData() {
+            // Simular carga de datos
+            document.getElementById('total-alerts').textContent = '0';
+            document.getElementById('dingconnect-alerts').textContent = '0';
+            document.getElementById('delayed-orders').textContent = '0';
+            document.getElementById('vendor-delays').textContent = '0';
+            
+            // Cargar alertas de ejemplo
+            loadSampleAlerts();
+        }
+
+        function loadSampleAlerts() {
+            const alertsContainer = document.getElementById('alerts-container');
+            
+            // Alertas de ejemplo
+            const sampleAlerts = [
+                {
+                    type: 'dingconnect',
+                    title: 'Error DingConnect API',
+                    message: 'Saldo insuficiente para recarga de $10 a ETECSA',
+                    severity: 'critical',
+                    time: 'Hace 5 minutos',
+                    user: 'usuario@ejemplo.com'
+                },
+                {
+                    type: 'delayed_order',
+                    title: 'Pedido Atrasado',
+                    message: 'Pedido #1234 lleva 2 horas sin entregar',
+                    severity: 'warning',
+                    time: 'Hace 30 minutos',
+                    user: 'cliente@ejemplo.com'
+                },
+                {
+                    type: 'vendor_delay',
+                    title: 'Demora de Vendedor',
+                    message: 'Vendedor "Tienda ABC" no ha procesado pedido #1235',
+                    severity: 'warning',
+                    time: 'Hace 1 hora',
+                    user: 'comprador@ejemplo.com'
+                }
+            ];
+
+            alertsContainer.innerHTML = '';
+            
+            sampleAlerts.forEach(alert => {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${alert.severity} alert-${alert.severity} mb-3`;
+                alertDiv.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="alert-heading">
+                                <i class="fas fa-${getAlertIcon(alert.type)}"></i>
+                                ${alert.title}
+                            </h6>
+                            <p class="mb-1">${alert.message}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> ${alert.user} | 
+                                <i class="fas fa-clock"></i> ${alert.time}
+                            </small>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewAlertDetail('${alert.type}', '${alert.title}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" onclick="resolveAlert('${alert.type}')">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                alertsContainer.appendChild(alertDiv);
+            });
+        }
+
+        function getAlertIcon(type) {
+            const icons = {
+                'dingconnect': 'mobile-alt',
+                'delayed_order': 'clock',
+                'vendor_delay': 'store'
+            };
+            return icons[type] || 'exclamation-triangle';
+        }
+
+        function refreshAlerts() {
+            loadAlertsData();
+        }
+
+        function markAllAsRead() {
+            if (confirm('¿Estás seguro de que quieres marcar todas las alertas como leídas?')) {
+                alert('Todas las alertas marcadas como leídas');
+                loadAlertsData();
+            }
+        }
+
+        function viewAlertDetail(type, title) {
+            const modal = document.getElementById('alertDetailModal');
+            const content = document.getElementById('alert-detail-content');
+            
+            // Simular contenido detallado
+            content.innerHTML = `
+                <h6>Detalles de la Alerta</h6>
+                <p><strong>Tipo:</strong> ${type}</p>
+                <p><strong>Título:</strong> ${title}</p>
+                <p><strong>Descripción:</strong> Detalles completos de la alerta...</p>
+                <p><strong>Fecha:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>Estado:</strong> Pendiente de resolución</p>
+            `;
+            
+            new bootstrap.Modal(modal).show();
+        }
+
+        function resolveAlert(type) {
+            if (confirm('¿Estás seguro de que quieres resolver esta alerta?')) {
+                alert('Alerta resuelta correctamente');
+                loadAlertsData();
+                
+                // Cerrar modal si está abierto
+                const modal = bootstrap.Modal.getInstance(document.getElementById('alertDetailModal'));
+                if (modal) {
+                    modal.hide();
+                }
+            }
+        }
+
+        // Auto-refresh cada 30 segundos
+        setInterval(function() {
+            // Solo actualizar si no hay modales abiertos
+            if (!document.querySelector('.modal.show')) {
+                refreshAlerts();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

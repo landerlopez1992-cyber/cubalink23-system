@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.app_name }} - Gestión de Vuelos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: white;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #16213e;
+        }
+        .card-stats {
+            background-color: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+        .nav-link {
+            color: white;
+            border-radius: 10px;
+            margin: 5px 0;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #0f3460;
+            color: white;
+        }
+        .table {
+            background-color: #16213e;
+            color: white;
+        }
+        .table th {
+            background-color: #0f3460;
+            color: white;
+            border-color: #0f3460;
+        }
+        .table td {
+            color: white;
+            border-color: #0f3460;
+        }
+        .btn-outline-primary {
+            color: white;
+            border-color: #0f3460;
+        }
+        .btn-outline-primary:hover {
+            background-color: #0f3460;
+            color: white;
+        }
+        .btn-success {
+            background-color: #0f3460;
+            border-color: #0f3460;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #0f3460;
+            border-color: #0f3460;
+            color: white;
+        }
+        .modal-content {
+            background-color: #16213e;
+            color: white;
+        }
+        .modal-header {
+            background-color: #0f3460;
+            color: white;
+        }
+        .modal-footer {
+            background-color: #16213e;
+            color: white;
+        }
+        .form-control {
+            background-color: #1a1a2e;
+            border-color: #16213e;
+            color: white;
+        }
+        .form-control:focus {
+            background-color: #1a1a2e;
+            border-color: #0f3460;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-3">
+                <div class="text-center mb-4">
+                    <img src="/static/img/company-logo.svg" alt="Cubalink23 Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4 class="text-white">{{ config.app_name }}</h4>
+                    <small class="text-white-50">Panel de Administración</small>
+                </div>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="/admin/">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="/admin/users">
+                        <i class="fas fa-users me-2"></i> Usuarios
+                    </a>
+                    <a class="nav-link" href="/admin/products">
+                        <i class="fas fa-box me-2"></i> Productos
+                    </a>
+                    <a class="nav-link" href="/admin/orders">
+                        <i class="fas fa-shopping-cart me-2"></i> Órdenes
+                    </a>
+                    <a class="nav-link active" href="/admin/flights">
+                        <i class="fas fa-plane me-2"></i> Vuelos
+                    </a>
+                    <a class="nav-link" href="/admin/system">
+                        <i class="fas fa-cog me-2"></i> Sistema
+                    </a>
+                    <a class="nav-link" href="/admin/vendors">
+                        <i class="fas fa-store me-2"></i> Vendedores
+                    </a>
+                    <a class="nav-link" href="/admin/drivers">
+                        <i class="fas fa-motorcycle me-2"></i> Repartidores
+                    </a>
+                    <a class="nav-link" href="/admin/vehicles">
+                        <i class="fas fa-car me-2"></i> Renta Car
+                    </a>
+                    <a class="nav-link" href="/admin/support-chat">
+                        <i class="fas fa-headset me-2"></i> Chat de Soporte
+                    </a>
+                    <a class="nav-link" href="/admin/alerts">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Alertas
+                    </a>
+                    <a class="nav-link" href="/admin/wallet">
+                        <i class="fas fa-wallet me-2"></i> Billetera
+                    </a>
+                    <a class="nav-link" href="/admin/payment-methods">
+                        <i class="fas fa-credit-card me-2"></i> Métodos de Pago
+                    </a>
+                    <a class="nav-link" href="/admin/payroll">
+                        <i class="fas fa-money-bill-wave me-2"></i> Nómina
+                    </a>
+                    <a class="nav-link mt-4" href="/auth/logout">
+                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-plane"></i> Gestión de Vuelos</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshFlights()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn btn-success" onclick="showSearchFlightModal()">
+                            <i class="fas fa-search"></i> Buscar Vuelo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <ul class="nav nav-tabs mb-4" id="flightsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="reservations-tab" data-bs-toggle="tab" data-bs-target="#reservations" type="button" role="tab">
+                            <i class="fas fa-list"></i> Reservas
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="charter-tab" data-bs-toggle="tab" data-bs-target="#charter" type="button" role="tab">
+                            <i class="fas fa-plane-departure"></i> Aerolíneas Charter
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="search-tab" data-bs-toggle="tab" data-bs-target="#search" type="button" role="tab">
+                            <i class="fas fa-search"></i> Búsqueda Combinada
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="flightsTabContent">
+                    <!-- Reservations Tab -->
+                    <div class="tab-pane fade show active" id="reservations" role="tabpanel">
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-plane fa-2x text-primary mb-2"></i>
+                                <h3 id="total-bookings">-</h3>
+                                <p class="mb-0">Reservas Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                                <h3 id="pending-bookings">-</h3>
+                                <p class="mb-0">Pendientes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                <h3 id="confirmed-bookings">-</h3>
+                                <p class="mb-0">Confirmadas</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-dollar-sign fa-2x text-info mb-2"></i>
+                                <h3 id="total-revenue">-</h3>
+                                <p class="mb-0">Ingresos Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flights Table -->
+                <div class="card card-stats">
+                    <div class="card-header">
+                        <h5><i class="fas fa-list"></i> Lista de Reservas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID Reserva</th>
+                                        <th>Pasajero</th>
+                                        <th>Origen</th>
+                                        <th>Destino</th>
+                                        <th>Fecha Ida</th>
+                                        <th>Fecha Vuelta</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="flights-table">
+                                    <tr>
+                                        <td colspan="8" class="text-center">
+                                            <div class="spinner-border" role="status">
+                                                <span class="visually-hidden">Cargando...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+
+                    <!-- Charter Airlines Tab -->
+                    <div class="tab-pane fade" id="charter" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-plane-departure"></i> Gestión de Aerolíneas Charter</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <button class="btn btn-success" onclick="showAddCharterModal()">
+                                            <i class="fas fa-plus"></i> Agregar Aerolínea Charter
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>URL</th>
+                                                <th>Markup ($)</th>
+                                                <th>Estado</th>
+                                                <th>Última Verificación</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="charter-airlines-table">
+                                            <tr>
+                                                <td>Xael Charter</td>
+                                                <td>https://www.xaelcharter.com</td>
+                                                <td>$50</td>
+                                                <td><span class="badge bg-success">Activa</span></td>
+                                                <td>2024-01-15 10:30</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary" onclick="editCharterAirline(1)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-warning" onclick="toggleCharterAirline(1)">
+                                                        <i class="fas fa-power-off"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-info" onclick="testCharterAirline(1)">
+                                                        <i class="fas fa-test-tube"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cubazul Air Charter</td>
+                                                <td>https://cubazulaircharter.com</td>
+                                                <td>$45</td>
+                                                <td><span class="badge bg-success">Activa</span></td>
+                                                <td>2024-01-15 09:15</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary" onclick="editCharterAirline(2)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-warning" onclick="toggleCharterAirline(2)">
+                                                        <i class="fas fa-power-off"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-info" onclick="testCharterAirline(2)">
+                                                        <i class="fas fa-test-tube"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Havana Air Charter</td>
+                                                <td>https://havanaair.com</td>
+                                                <td>$55</td>
+                                                <td><span class="badge bg-success">Activa</span></td>
+                                                <td>2024-01-15 11:45</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary" onclick="editCharterAirline(3)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-warning" onclick="toggleCharterAirline(3)">
+                                                        <i class="fas fa-power-off"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-info" onclick="testCharterAirline(3)">
+                                                        <i class="fas fa-test-tube"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Tab -->
+                    <div class="tab-pane fade" id="search" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-search"></i> Búsqueda Combinada (Duffel + Charter)</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Origen</label>
+                                            <input type="text" class="form-control" id="combined-origin" placeholder="Ciudad de origen">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Destino</label>
+                                            <input type="text" class="form-control" id="combined-destination" placeholder="Ciudad de destino">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Fecha Ida</label>
+                                            <input type="date" class="form-control" id="combined-departure">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Fecha Vuelta (opcional)</label>
+                                            <input type="date" class="form-control" id="combined-return">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Pasajeros</label>
+                                            <select class="form-select" id="combined-passengers">
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Tipo de Búsqueda</label>
+                                            <select class="form-select" id="combined-search-type">
+                                                <option value="all">Comercial + Charter</option>
+                                                <option value="commercial">Solo Comercial</option>
+                                                <option value="charter">Solo Charter</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">&nbsp;</label>
+                                            <button class="btn btn-primary w-100" onclick="performCombinedSearch()">
+                                                <i class="fas fa-search"></i> Buscar Vuelos
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="combined-results" class="mt-4">
+                                    <!-- Results will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Charter Airline Modal -->
+    <div class="modal fade" id="charterAirlineModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="charterModalTitle">Agregar Aerolínea Charter</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="charterAirlineForm">
+                        <input type="hidden" id="charter-airline-id">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre de la Aerolínea</label>
+                                    <input type="text" class="form-control" id="charter-name" placeholder="Ej: Xael Charter" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">URL del Sitio Web</label>
+                                    <input type="url" class="form-control" id="charter-url" placeholder="https://www.aerolinea.com" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Markup ($)</label>
+                                    <input type="number" class="form-control" id="charter-markup" placeholder="50" min="0" step="0.01" required>
+                                    <small class="text-muted">Comisión por vuelo en dólares</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Estado</label>
+                                    <select class="form-select" id="charter-status">
+                                        <option value="active">Activa</option>
+                                        <option value="inactive">Inactiva</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="charter-description" rows="3" placeholder="Descripción de la aerolínea y sus servicios"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Rutas Principales</label>
+                                    <input type="text" class="form-control" id="charter-routes" placeholder="Ej: Miami-Havana, Tampa-Havana">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Frecuencia de Verificación (minutos)</label>
+                                    <input type="number" class="form-control" id="charter-check-frequency" placeholder="30" min="5" value="30">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveCharterAirline()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Flight Modal -->
+    <div class="modal fade" id="searchFlightModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Buscar Vuelo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="searchFlightForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Origen</label>
+                                    <input type="text" class="form-control" name="origin" placeholder="Ciudad de origen" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Destino</label>
+                                    <input type="text" class="form-control" name="destination" placeholder="Ciudad de destino" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Fecha Ida</label>
+                                    <input type="date" class="form-control" name="departure_date" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Fecha Vuelta (opcional)</label>
+                                    <input type="date" class="form-control" name="return_date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Pasajeros</label>
+                                    <select class="form-select" name="passengers">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Clase</label>
+                                    <select class="form-select" name="class">
+                                        <option value="economy">Económica</option>
+                                        <option value="business">Business</option>
+                                        <option value="first">Primera</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo</label>
+                                    <select class="form-select" name="trip_type">
+                                        <option value="oneway">Solo Ida</option>
+                                        <option value="roundtrip">Ida y Vuelta</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="searchFlights()">Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFlightsData();
+        });
+
+        function loadFlightsData() {
+            // Simular carga de datos
+            document.getElementById('total-bookings').textContent = '0';
+            document.getElementById('pending-bookings').textContent = '0';
+            document.getElementById('confirmed-bookings').textContent = '0';
+            document.getElementById('total-revenue').textContent = '$0';
+            
+            // Simular tabla vacía
+            document.getElementById('flights-table').innerHTML = 
+                '<tr><td colspan="8" class="text-center">No hay reservas registradas</td></tr>';
+        }
+
+        function refreshFlights() {
+            loadFlightsData();
+        }
+
+        function showSearchFlightModal() {
+            new bootstrap.Modal(document.getElementById('searchFlightModal')).show();
+        }
+
+        function searchFlights() {
+            const form = document.getElementById('searchFlightForm');
+            const formData = new FormData(form);
+            
+            // Aquí iría la lógica para buscar vuelos con Duffel API
+            alert('Buscando vuelos...');
+            
+            // Cerrar modal
+            bootstrap.Modal.getInstance(document.getElementById('searchFlightModal')).hide();
+        }
+
+        // Funciones para gestión de aerolíneas charter
+        function showAddCharterModal() {
+            document.getElementById('charterModalTitle').textContent = 'Agregar Aerolínea Charter';
+            document.getElementById('charter-airline-id').value = '';
+            document.getElementById('charterAirlineForm').reset();
+            new bootstrap.Modal(document.getElementById('charterAirlineModal')).show();
+        }
+
+        function editCharterAirline(id) {
+            document.getElementById('charterModalTitle').textContent = 'Editar Aerolínea Charter';
+            document.getElementById('charter-airline-id').value = id;
+            
+            // Cargar datos de la aerolínea (simulado)
+            const airlineData = getCharterAirlineData(id);
+            document.getElementById('charter-name').value = airlineData.name;
+            document.getElementById('charter-url').value = airlineData.url;
+            document.getElementById('charter-markup').value = airlineData.markup;
+            document.getElementById('charter-status').value = airlineData.status;
+            document.getElementById('charter-description').value = airlineData.description;
+            document.getElementById('charter-routes').value = airlineData.routes;
+            document.getElementById('charter-check-frequency').value = airlineData.checkFrequency;
+            
+            new bootstrap.Modal(document.getElementById('charterAirlineModal')).show();
+        }
+
+        function getCharterAirlineData(id) {
+            // Datos simulados - en producción vendría de la base de datos
+            const airlines = {
+                1: {
+                    name: 'Xael Charter',
+                    url: 'https://www.xaelcharter.com',
+                    markup: 50,
+                    status: 'active',
+                    description: 'Aerolínea charter especializada en vuelos a Cuba',
+                    routes: 'Miami-Havana, Tampa-Havana',
+                    checkFrequency: 30
+                },
+                2: {
+                    name: 'Cubazul Air Charter',
+                    url: 'https://cubazulaircharter.com',
+                    markup: 45,
+                    status: 'active',
+                    description: 'Servicios de vuelos charter a Cuba',
+                    routes: 'Miami-Havana, Fort Lauderdale-Havana',
+                    checkFrequency: 30
+                },
+                3: {
+                    name: 'Havana Air Charter',
+                    url: 'https://havanaair.com',
+                    markup: 55,
+                    status: 'active',
+                    description: 'Vuelos charter directos a La Habana',
+                    routes: 'Miami-Havana, Orlando-Havana',
+                    checkFrequency: 30
+                }
+            };
+            return airlines[id] || {};
+        }
+
+        function saveCharterAirline() {
+            const formData = {
+                id: document.getElementById('charter-airline-id').value,
+                name: document.getElementById('charter-name').value,
+                url: document.getElementById('charter-url').value,
+                markup: parseFloat(document.getElementById('charter-markup').value),
+                status: document.getElementById('charter-status').value,
+                description: document.getElementById('charter-description').value,
+                routes: document.getElementById('charter-routes').value,
+                checkFrequency: parseInt(document.getElementById('charter-check-frequency').value)
+            };
+
+            fetch('/admin/api/charter-airlines', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Aerolínea charter guardada correctamente');
+                    bootstrap.Modal.getInstance(document.getElementById('charterAirlineModal')).hide();
+                    loadCharterAirlines();
+                } else {
+                    alert('Error al guardar: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al guardar la aerolínea charter');
+            });
+        }
+
+        function toggleCharterAirline(id) {
+            const newStatus = confirm('¿Desea cambiar el estado de esta aerolínea?') ? 'toggle' : null;
+            if (newStatus) {
+                fetch(`/admin/api/charter-airlines/${id}/toggle`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Estado de aerolínea actualizado');
+                        loadCharterAirlines();
+                    } else {
+                        alert('Error al actualizar estado');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al actualizar estado');
+                });
+            }
+        }
+
+        function testCharterAirline(id) {
+            alert('Probando conexión con aerolínea charter...');
+            fetch(`/admin/api/charter-airlines/${id}/test`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Conexión exitosa: ' + data.message);
+                } else {
+                    alert('❌ Error de conexión: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error al probar conexión');
+            });
+        }
+
+        function performCombinedSearch() {
+            const searchData = {
+                origin: document.getElementById('combined-origin').value,
+                destination: document.getElementById('combined-destination').value,
+                departure_date: document.getElementById('combined-departure').value,
+                return_date: document.getElementById('combined-return').value,
+                passengers: document.getElementById('combined-passengers').value,
+                search_type: document.getElementById('combined-search-type').value
+            };
+
+            if (!searchData.origin || !searchData.destination || !searchData.departure_date) {
+                alert('Por favor complete los campos obligatorios');
+                return;
+            }
+
+            // Mostrar loading
+            const resultsDiv = document.getElementById('combined-results');
+            resultsDiv.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div><p>Cargando resultados...</p></div>';
+
+            fetch('/admin/api/combined-flight-search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(searchData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayCombinedResults(data.results);
+                } else {
+                    resultsDiv.innerHTML = '<div class="alert alert-danger">Error en la búsqueda: ' + data.message + '</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                resultsDiv.innerHTML = '<div class="alert alert-danger">Error al realizar la búsqueda</div>';
+            });
+        }
+
+        function displayCombinedResults(results) {
+            const resultsDiv = document.getElementById('combined-results');
+            
+            if (!results || results.length === 0) {
+                resultsDiv.innerHTML = '<div class="alert alert-info">No se encontraron vuelos disponibles</div>';
+                return;
+            }
+
+            let html = '<div class="row">';
+            
+            results.forEach(flight => {
+                html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">${flight.airline}</h6>
+                                <span class="badge ${flight.type === 'commercial' ? 'bg-primary' : 'bg-success'}">${flight.type === 'commercial' ? 'Comercial' : 'Charter'}</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small class="text-muted">Origen</small>
+                                        <p class="mb-1">${flight.origin}</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Destino</small>
+                                        <p class="mb-1">${flight.destination}</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small class="text-muted">Salida</small>
+                                        <p class="mb-1">${flight.departure_time}</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Llegada</small>
+                                        <p class="mb-1">${flight.arrival_time}</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small class="text-muted">Duración</small>
+                                        <p class="mb-1">${flight.duration}</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Precio</small>
+                                        <p class="mb-1 fw-bold text-success">$${flight.price}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        }
+
+        function loadCharterAirlines() {
+            // Esta función cargaría los datos reales de la base de datos
+            console.log('Cargando aerolíneas charter...');
+        }
+    </script>
+</body>
+</html>

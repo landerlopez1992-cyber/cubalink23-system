@@ -1,0 +1,40 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with scanlines -->
+  <defs>
+    <pattern id="scanlines" patternUnits="userSpaceOnUse" width="2" height="2">
+      <rect width="2" height="1" fill="#1a1a1a"/>
+      <rect width="2" height="1" y="1" fill="#2a2a2a"/>
+    </pattern>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="200" height="200" fill="url(#scanlines)"/>
+  
+  <!-- Teal background section -->
+  <rect x="50" y="60" width="100" height="80" fill="#1a3a3a"/>
+  
+  <!-- Sun -->
+  <circle cx="120" cy="80" r="25" fill="#ff6600"/>
+  
+  <!-- Island/Mountain -->
+  <path d="M 70 100 L 90 85 L 110 95 L 130 80 L 150 100 Z" fill="#1a4a4a"/>
+  
+  <!-- Palm Trees -->
+  <path d="M 85 95 L 80 75 L 85 80 L 90 70 L 95 80 L 100 75 L 95 95 Z" fill="#1a5a5a"/>
+  <path d="M 105 90 L 100 70 L 105 75 L 110 65 L 115 75 L 120 70 L 115 90 Z" fill="#1a5a5a"/>
+  
+  <!-- Water -->
+  <rect x="60" y="110" width="80" height="15" fill="#4a9eff"/>
+  
+  <!-- Boat -->
+  <path d="M 130 115 L 140 110 L 150 115 L 145 120 L 135 120 Z" fill="#1a4a8a"/>
+  <path d="M 135 110 L 135 105 L 140 105 L 140 110 Z" fill="#1a4a8a"/>
+  
+  <!-- Boat wake -->
+  <path d="M 130 118 L 125 120 L 120 118" stroke="#6ab0ff" stroke-width="1" fill="none"/>
+  
+  <!-- Birds -->
+  <path d="M 140 70 L 145 65 L 150 70 L 145 75 Z" fill="#ff6600"/>
+  <path d="M 150 65 L 155 60 L 160 65 L 155 70 Z" fill="#ff6600"/>
+</svg>
+

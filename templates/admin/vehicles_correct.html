@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.app_name }} - Gestión de Renta Car</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #16213e;
+            color: #e0e0e0;
+        }
+        .card-stats {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #0f3460;
+            color: #e0e0e0;
+        }
+        .nav-link {
+            color: #e0e0e0;
+            border-radius: 10px;
+            margin: 5px 0;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #0f3460;
+            color: white;
+        }
+        .table {
+            color: #e0e0e0;
+        }
+        .table th {
+            background-color: #16213e;
+            border-color: #1a1a2e;
+        }
+        .table td {
+            background-color: #0f3460;
+            border-color: #1a1a2e;
+        }
+        .btn-primary {
+            background-color: #e94560;
+            border-color: #e94560;
+        }
+        .btn-primary:hover {
+            background-color: #b83f54;
+            border-color: #b83f54;
+        }
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #000;
+        }
+        .btn-outline-primary {
+            color: #e94560;
+            border-color: #e94560;
+        }
+        .btn-outline-primary:hover {
+            background-color: #e94560;
+            border-color: #e94560;
+        }
+        .modal-content {
+            background-color: #0f3460;
+            color: #e0e0e0;
+        }
+        .modal-header {
+            background-color: #16213e;
+            border-bottom: 1px solid #1a1a2e;
+        }
+        .modal-footer {
+            background-color: #16213e;
+            border-top: 1px solid #1a1a2e;
+        }
+        .form-control {
+            background-color: #1a1a2e;
+            border-color: #16213e;
+            color: #e0e0e0;
+        }
+        .form-control:focus {
+            background-color: #1a1a2e;
+            border-color: #e94560;
+            color: #e0e0e0;
+            box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25);
+        }
+        .form-select {
+            background-color: #1a1a2e;
+            border-color: #16213e;
+            color: #e0e0e0;
+        }
+        .vehicle-image {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .vehicle-card {
+            background-color: #0f3460;
+            border: 1px solid #1a1a2e;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .vehicle-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .badge-pending {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .badge-approved {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .badge-rejected {
+            background-color: #dc3545;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-3">
+                <div class="text-center mb-4">
+                    <img src="/static/img/company-logo.svg" alt="Cubalink23 Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4 class="text-white">{{ config.app_name }}</h4>
+                    <small class="text-white-50">Panel de Administración</small>
+                </div>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="/admin/">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="/admin/users">
+                        <i class="fas fa-users me-2"></i> Usuarios
+                    </a>
+                    <a class="nav-link" href="/admin/products">
+                        <i class="fas fa-box me-2"></i> Productos
+                    </a>
+                    <a class="nav-link" href="/admin/orders">
+                        <i class="fas fa-shopping-cart me-2"></i> Órdenes
+                    </a>
+                    <a class="nav-link" href="/admin/flights">
+                        <i class="fas fa-plane me-2"></i> Vuelos
+                    </a>
+                    <a class="nav-link" href="/admin/system">
+                        <i class="fas fa-cog me-2"></i> Sistema
+                    </a>
+                    <a class="nav-link" href="/admin/vendors">
+                        <i class="fas fa-store me-2"></i> Vendedores
+                    </a>
+                    <a class="nav-link" href="/admin/drivers">
+                        <i class="fas fa-motorcycle me-2"></i> Repartidores
+                    </a>
+                    <a class="nav-link active" href="/admin/vehicles">
+                        <i class="fas fa-car me-2"></i> Renta Car
+                    </a>
+                    <a class="nav-link" href="/admin/support-chat">
+                        <i class="fas fa-headset me-2"></i> Chat de Soporte
+                    </a>
+                    <a class="nav-link" href="/admin/alerts">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Alertas
+                    </a>
+                    <a class="nav-link" href="/admin/wallet">
+                        <i class="fas fa-wallet me-2"></i> Billetera
+                    </a>
+                    <a class="nav-link" href="/admin/payment-methods">
+                        <i class="fas fa-credit-card me-2"></i> Métodos de Pago
+                    </a>
+                    <a class="nav-link" href="/admin/payroll">
+                        <i class="fas fa-money-bill-wave me-2"></i> Nómina
+                    </a>
+                    <a class="nav-link mt-4" href="/auth/logout">
+                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-car"></i> Gestión de Renta Car</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshVehicles()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn btn-success" onclick="showAddVehicleModal()">
+                            <i class="fas fa-plus"></i> Agregar Vehículo
+                        </button>
+                        <button class="btn btn-warning" onclick="checkPendingRentals()">
+                            <i class="fas fa-clock"></i> Alquileres Pendientes
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-car fa-2x text-primary mb-2"></i>
+                                <h3 id="total-vehicles">5</h3>
+                                <p class="mb-0">Vehículos Disponibles</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                                <h3 id="pending-rentals">3</h3>
+                                <p class="mb-0">Alquileres Pendientes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                <h3 id="completed-rentals">12</h3>
+                                <p class="mb-0">Alquileres Completados</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-dollar-sign fa-2x text-info mb-2"></i>
+                                <h3 id="total-commissions">$600</h3>
+                                <p class="mb-0">Comisiones ($50 c/u)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <ul class="nav nav-tabs mb-4" id="vehicleTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="vehicles-tab" data-bs-toggle="tab" data-bs-target="#vehicles" type="button" role="tab">
+                            <i class="fas fa-car"></i> Vehículos
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="rentals-tab" data-bs-toggle="tab" data-bs-target="#rentals" type="button" role="tab">
+                            <i class="fas fa-list"></i> Alquileres
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                            <i class="fas fa-clock"></i> Pendientes de Aprobación
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab">
+                            <i class="fas fa-chart-bar"></i> Reportes
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="vehicleTabContent">
+                    <!-- Vehicles Tab -->
+                    <div class="tab-pane fade show active" id="vehicles" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-car"></i> Gestión de Vehículos</h5>
+                                <small class="text-muted">Vehículos disponibles para alquiler con fotos, precios y políticas</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Información Importante:</strong> Los precios mostrados son de primera mano de rentcarcuba.com. 
+                                    Nuestra ganancia es solo $50 por reserva. Incluye: tanque lleno, seguro, cambio de lugar de entrega, chofer adicional, etc.
+                                </div>
+                                
+                                <div class="row">
+                                    <!-- Toyota Corolla -->
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="vehicle-card">
+                                            <img src="https://via.placeholder.com/300x200/007bff/ffffff?text=Toyota+Corolla" alt="Toyota Corolla">
+                                            <h5>Toyota Corolla</h5>
+                                            <p><strong>Precio por día:</strong> $45</p>
+                                            <p><strong>Tanque lleno:</strong> $30</p>
+                                            <p><strong>Anticipación mínima:</strong> 4 días</p>
+                                            <p><strong>Tiempo máximo:</strong> 1 mes</p>
+                                            <p><strong>Disponibilidad:</strong> <span class="badge bg-success">Disponible</span></p>
+                                            <div class="btn-group w-100">
+                                                <button class="btn btn-primary btn-sm" onclick="editVehicle(1)">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                </button>
+                                                <button class="btn btn-info btn-sm" onclick="viewVehicleDetails(1)">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Hyundai Accent -->
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="vehicle-card">
+                                            <img src="https://via.placeholder.com/300x200/28a745/ffffff?text=Hyundai+Accent" alt="Hyundai Accent">
+                                            <h5>Hyundai Accent</h5>
+                                            <p><strong>Precio por día:</strong> $40</p>
+                                            <p><strong>Tanque lleno:</strong> $25</p>
+                                            <p><strong>Anticipación mínima:</strong> 4 días</p>
+                                            <p><strong>Tiempo máximo:</strong> 1 mes</p>
+                                            <p><strong>Disponibilidad:</strong> <span class="badge bg-success">Disponible</span></p>
+                                            <div class="btn-group w-100">
+                                                <button class="btn btn-primary btn-sm" onclick="editVehicle(2)">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                </button>
+                                                <button class="btn btn-info btn-sm" onclick="viewVehicleDetails(2)">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Kia Rio -->
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="vehicle-card">
+                                            <img src="https://via.placeholder.com/300x200/ffc107/000000?text=Kia+Rio" alt="Kia Rio">
+                                            <h5>Kia Rio</h5>
+                                            <p><strong>Precio por día:</strong> $38</p>
+                                            <p><strong>Tanque lleno:</strong> $28</p>
+                                            <p><strong>Anticipación mínima:</strong> 4 días</p>
+                                            <p><strong>Tiempo máximo:</strong> 1 mes</p>
+                                            <p><strong>Disponibilidad:</strong> <span class="badge bg-warning">Ocupado</span></p>
+                                            <div class="btn-group w-100">
+                                                <button class="btn btn-primary btn-sm" onclick="editVehicle(3)">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                </button>
+                                                <button class="btn btn-info btn-sm" onclick="viewVehicleDetails(3)">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rentals Tab -->
+                    <div class="tab-pane fade" id="rentals" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-list"></i> Historial de Alquileres</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Alquiler</th>
+                                                <th>Usuario</th>
+                                                <th>Vehículo</th>
+                                                <th>Fechas</th>
+                                                <th>Precio</th>
+                                                <th>Comisión</th>
+                                                <th>Estado</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="rentals-table">
+                                            <tr>
+                                                <td>001</td>
+                                                <td>juan@ejemplo.com</td>
+                                                <td>Toyota Corolla</td>
+                                                <td>15-20 Ene 2024</td>
+                                                <td>$225</td>
+                                                <td>$50</td>
+                                                <td><span class="badge bg-success">Completado</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info" onclick="viewRentalDetails(1)">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pending Tab -->
+                    <div class="tab-pane fade" id="pending" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-clock"></i> Alquileres Pendientes de Aprobación</h5>
+                                <small class="text-muted">Usuarios esperando confirmación de disponibilidad</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Proceso:</strong> Usuario elige vehículo y fechas → Sistema crea pedido pendiente → 
+                                    Admin verifica disponibilidad → Admin acepta → Usuario paga → Se crea reserva
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Usuario</th>
+                                                <th>Vehículo</th>
+                                                <th>Fechas Alquiler</th>
+                                                <th>Precio Total</th>
+                                                <th>Fecha Solicitud</th>
+                                                <th>Tiempo Restante</th>
+                                                <th>Estado</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="pending-table">
+                                            <tr>
+                                                <td>002</td>
+                                                <td>maria@ejemplo.com</td>
+                                                <td>Hyundai Accent</td>
+                                                <td>25-30 Ene 2024</td>
+                                                <td>$200</td>
+                                                <td>2024-01-15 14:30</td>
+                                                <td><span class="badge bg-danger" id="timer-2">25:30</span></td>
+                                                <td><span class="badge bg-warning">Pendiente</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success" onclick="approveRental(2)">
+                                                        <i class="fas fa-check"></i> Aceptar
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" onclick="rejectRental(2)">
+                                                        <i class="fas fa-times"></i> Rechazar
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>003</td>
+                                                <td>carlos@ejemplo.com</td>
+                                                <td>Toyota Corolla</td>
+                                                <td>5-10 Feb 2024</td>
+                                                <td>$225</td>
+                                                <td>2024-01-15 16:45</td>
+                                                <td><span class="badge bg-warning" id="timer-3">18:15</span></td>
+                                                <td><span class="badge bg-warning">Pendiente</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success" onclick="approveRental(3)">
+                                                        <i class="fas fa-check"></i> Aceptar
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" onclick="rejectRental(3)">
+                                                        <i class="fas fa-times"></i> Rechazar
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reports Tab -->
+                    <div class="tab-pane fade" id="reports" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-chart-bar"></i> Reportes de Renta Car</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Estadísticas del Mes</h6>
+                                        <ul class="list-group">
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Total Alquileres:</span>
+                                                <span id="monthly-rentals">0</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Comisiones Ganadas:</span>
+                                                <span id="monthly-commissions">$0</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Verificaciones Realizadas:</span>
+                                                <span id="monthly-verifications">0</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Acciones Rápidas</h6>
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-outline-primary" onclick="exportRentalsReport()">
+                                                <i class="fas fa-download"></i> Exportar Reporte
+                                            </button>
+                                            <button class="btn btn-outline-success" onclick="generateCommissionReport()">
+                                                <i class="fas fa-calculator"></i> Reporte de Comisiones
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Vehicle Modal -->
+    <div class="modal fade" id="addVehicleModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus"></i> Agregar Nuevo Vehículo
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addVehicleForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Información Básica</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Marca y Modelo</label>
+                                    <input type="text" class="form-control" name="vehicle_name" required placeholder="Ej: Toyota Corolla">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Foto de Portada</label>
+                                    <input type="file" class="form-control" name="vehicle_image" accept="image/*" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Precio por Día ($)</label>
+                                    <input type="number" class="form-control" name="price_per_day" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Precio Tanque Lleno ($)</label>
+                                    <input type="number" class="form-control" name="fuel_price" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Políticas y Restricciones</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Anticipación Mínima (días)</label>
+                                    <input type="number" class="form-control" name="min_advance" value="4" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tiempo Máximo de Alquiler (días)</label>
+                                    <input type="number" class="form-control" name="max_duration" value="30" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Estado</label>
+                                    <select class="form-select" name="status" required>
+                                        <option value="available">Disponible</option>
+                                        <option value="maintenance">En Mantenimiento</option>
+                                        <option value="rented">Alquilado</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Políticas y Términos</label>
+                                    <textarea class="form-control" name="policies" rows="4" placeholder="Políticas específicas del vehículo..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="addVehicle()">Agregar Vehículo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rental Payment Modal -->
+    <div class="modal fade" id="rentalPaymentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-credit-card"></i> Formulario de Pago y Datos
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Importante:</strong> Si el cliente se equivoca en los datos, no nos hacemos responsables. 
+                        Tendrá que resolverlo en la renta en Cuba por sus medios.
+                    </div>
+                    
+                    <form id="rentalPaymentForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Datos Personales</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre Completo *</label>
+                                    <input type="text" class="form-control" name="full_name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Correo Electrónico *</label>
+                                    <input type="email" class="form-control" name="email" required>
+                                    <small class="text-muted">Recibirá el recibo de la reserva aquí</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Número de Licencia *</label>
+                                    <input type="text" class="form-control" name="license_number" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Número de Pasaporte *</label>
+                                    <input type="text" class="form-control" name="passport_number" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Detalles del Alquiler</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Vehículo</label>
+                                    <input type="text" class="form-control" id="rental-vehicle" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Fechas</label>
+                                    <input type="text" class="form-control" id="rental-dates" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Precio Total</label>
+                                    <input type="text" class="form-control" id="rental-total" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Comisión</label>
+                                    <input type="text" class="form-control" value="$50" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Método de Pago</label>
+                                    <select class="form-select" name="payment_method" required>
+                                        <option value="">Seleccionar método</option>
+                                        <option value="credit_card">Tarjeta de Crédito/Débito</option>
+                                        <option value="zelle">Zelle</option>
+                                        <option value="wallet">Saldo de Billetera</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="processRentalPayment()">Procesar Pago</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVehiclesData();
+        });
+
+        function loadVehiclesData() {
+            // Los datos ya están cargados en el HTML
+            console.log('Datos de vehículos cargados');
+        }
+
+        function refreshVehicles() {
+            loadVehiclesData();
+            alert('Datos actualizados');
+        }
+
+        function showAddVehicleModal() {
+            new bootstrap.Modal(document.getElementById('addVehicleModal')).show();
+        }
+
+        function addVehicle() {
+            const form = document.getElementById('addVehicleForm');
+            const formData = new FormData(form);
+            
+            // Aquí iría la lógica para agregar vehículo
+            alert('Vehículo agregado correctamente');
+            new bootstrap.Modal(document.getElementById('addVehicleModal')).hide();
+        }
+
+        function editVehicle(vehicleId) {
+            alert('Editar vehículo ' + vehicleId);
+        }
+
+        function viewVehicleDetails(vehicleId) {
+            alert('Ver detalles del vehículo ' + vehicleId);
+        }
+
+        function checkPendingRentals() {
+            // Cambiar a la pestaña de pendientes
+            document.getElementById('pending-tab').click();
+        }
+
+        function approveRental(rentalId) {
+            if (confirm('¿Confirmar que el vehículo está disponible para este alquiler?')) {
+                // Mostrar modal de pago
+                document.getElementById('rental-vehicle').value = 'Hyundai Accent';
+                document.getElementById('rental-dates').value = '25-30 Ene 2024';
+                document.getElementById('rental-total').value = '$200';
+                new bootstrap.Modal(document.getElementById('rentalPaymentModal')).show();
+            }
+        }
+
+        function rejectRental(rentalId) {
+            if (confirm('¿Rechazar este alquiler?')) {
+                alert('Alquiler rechazado. Se notificará al usuario.');
+            }
+        }
+
+        function processRentalPayment() {
+            const form = document.getElementById('rentalPaymentForm');
+            const formData = new FormData(form);
+            
+            // Aquí iría la lógica para procesar el pago
+            alert('Pago procesado correctamente. Se ha creado la reserva y se enviará confirmación al usuario.');
+            new bootstrap.Modal(document.getElementById('rentalPaymentModal')).hide();
+        }
+
+        function viewRentalDetails(rentalId) {
+            alert('Ver detalles del alquiler ' + rentalId);
+        }
+
+        function generateCommissionReport() {
+            alert('Generando reporte de comisiones...');
+        }
+
+        function checkPendingVerifications() {
+            // Aquí iría la lógica para cargar verificaciones pendientes
+            alert('Cargando verificaciones pendientes...');
+        }
+
+        function performManualVerification(verificationId) {
+            // Simular datos de la solicitud
+            document.getElementById('request-user').value = 'usuario@ejemplo.com';
+            document.getElementById('request-dates').value = '15/01/2024 - 20/01/2024';
+            
+            new bootstrap.Modal(document.getElementById('manualVerificationModal')).show();
+        }
+
+        function updateVerificationResult() {
+            const availability = document.getElementById('availability-result').value;
+            const price = document.getElementById('rental-price').value;
+            const notes = document.getElementById('verification-notes').value;
+
+            if (!availability) {
+                alert('Por favor selecciona el resultado de disponibilidad');
+                return;
+            }
+
+            // Aquí iría la lógica para actualizar el resultado
+            alert('Resultado actualizado correctamente');
+            
+            // Cerrar modal y recargar datos
+            bootstrap.Modal.getInstance(document.getElementById('manualVerificationModal')).hide();
+            loadVehiclesData();
+        }
+
+        function exportRentalsReport() {
+            alert('Exportando reporte de alquileres...');
+        }
+
+        function generateCommissionReport() {
+            alert('Generando reporte de comisiones...');
+        }
+
+        // Contador de tiempo para pedidos pendientes
+        function startTimer(rentalId, initialMinutes) {
+            let timeLeft = initialMinutes * 60; // Convertir a segundos
+            
+            const timerElement = document.getElementById(`timer-${rentalId}`);
+            if (!timerElement) return;
+            
+            const timer = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 300) { // 5 minutos restantes
+                    timerElement.className = 'badge bg-danger';
+                } else if (timeLeft <= 600) { // 10 minutos restantes
+                    timerElement.className = 'badge bg-warning';
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timerElement.textContent = '00:00';
+                    timerElement.className = 'badge bg-secondary';
+                    
+                    // Cancelar automáticamente el pedido
+                    cancelRentalByTimeout(rentalId);
+                }
+                
+                timeLeft--;
+            }, 1000);
+        }
+
+        function cancelRentalByTimeout(rentalId) {
+            // Aquí se cancelaría automáticamente el pedido
+            console.log(`Pedido ${rentalId} cancelado por tiempo agotado`);
+            alert(`Pedido ${rentalId} cancelado automáticamente por tiempo agotado. El vehículo está disponible para otros usuarios.`);
+        }
+
+        // Iniciar contadores al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simular contadores para los pedidos pendientes
+            startTimer(2, 25); // 25 minutos restantes
+            startTimer(3, 18); // 18 minutos restantes
+        });
+    </script>
+</body>
+</html>

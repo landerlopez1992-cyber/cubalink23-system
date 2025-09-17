@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.app_name }} - Gestión de Productos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #16213e;
+            color: #e0e0e0;
+        }
+        .card-stats {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #0f3460;
+            color: #e0e0e0;
+        }
+        .nav-link {
+            color: #e0e0e0;
+            border-radius: 10px;
+            margin: 5px 0;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #0f3460;
+            color: white;
+        }
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .table {
+            color: #e0e0e0;
+        }
+        .table th {
+            background-color: #16213e;
+            border-color: #1a1a2e;
+        }
+        .table td {
+            background-color: #0f3460;
+            border-color: #1a1a2e;
+        }
+        .btn-primary {
+            background-color: #e94560;
+            border-color: #e94560;
+        }
+        .btn-primary:hover {
+            background-color: #b83f54;
+            border-color: #b83f54;
+        }
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-outline-primary {
+            color: #e94560;
+            border-color: #e94560;
+        }
+        .btn-outline-primary:hover {
+            background-color: #e94560;
+            border-color: #e94560;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-3">
+                <div class="text-center mb-4">
+                    <img src="/static/img/company-logo.svg" alt="Cubalink23 Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4 class="text-white">{{ config.app_name }}</h4>
+                    <small class="text-white-50">Panel de Administración</small>
+                </div>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="/admin/">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="/admin/users">
+                        <i class="fas fa-users me-2"></i> Usuarios
+                    </a>
+                    <a class="nav-link active" href="/admin/products">
+                        <i class="fas fa-box me-2"></i> Productos
+                    </a>
+                    <a class="nav-link" href="/admin/orders">
+                        <i class="fas fa-shopping-cart me-2"></i> Órdenes
+                    </a>
+                    <a class="nav-link" href="/admin/flights">
+                        <i class="fas fa-plane me-2"></i> Vuelos
+                    </a>
+                    <a class="nav-link" href="/admin/system">
+                        <i class="fas fa-cog me-2"></i> Sistema
+                    </a>
+                    <a class="nav-link" href="/admin/vendors">
+                        <i class="fas fa-store me-2"></i> Vendedores
+                    </a>
+                    <a class="nav-link" href="/admin/drivers">
+                        <i class="fas fa-motorcycle me-2"></i> Repartidores
+                    </a>
+                    <a class="nav-link" href="/admin/vehicles">
+                        <i class="fas fa-car me-2"></i> Renta Car
+                    </a>
+                    <a class="nav-link" href="/admin/support-chat">
+                        <i class="fas fa-headset me-2"></i> Chat de Soporte
+                    </a>
+                    <a class="nav-link" href="/admin/alerts">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Alertas
+                    </a>
+                    <a class="nav-link" href="/admin/wallet">
+                        <i class="fas fa-wallet me-2"></i> Billetera
+                    </a>
+                    <a class="nav-link" href="/admin/payment-methods">
+                        <i class="fas fa-credit-card me-2"></i> Métodos de Pago
+                    </a>
+                    <a class="nav-link" href="/admin/payroll">
+                        <i class="fas fa-money-bill-wave me-2"></i> Nómina
+                    </a>
+                    <a class="nav-link mt-4" href="/auth/logout">
+                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-box"></i> Gestión de Productos</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshProducts()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn btn-success" onclick="showAddProductModal()">
+                            <i class="fas fa-plus"></i> Agregar Producto
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-box fa-2x text-primary mb-2"></i>
+                                <h3 id="total-products">-</h3>
+                                <p class="mb-0">Productos Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-tags fa-2x text-success mb-2"></i>
+                                <h3 id="total-categories">-</h3>
+                                <p class="mb-0">Categorías</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-dollar-sign fa-2x text-info mb-2"></i>
+                                <h3 id="total-sales">-</h3>
+                                <p class="mb-0">Ventas Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                                <h3 id="avg-rating">-</h3>
+                                <p class="mb-0">Rating Promedio</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="card card-stats">
+                    <div class="card-header">
+                        <h5><i class="fas fa-list"></i> Lista de Productos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Imagen</th>
+                                        <th>Nombre</th>
+                                        <th>Categoría</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-table">
+                                    <tr>
+                                        <td colspan="7" class="text-center">
+                                            <div class="spinner-border" role="status">
+                                                <span class="visually-hidden">Cargando...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProductForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre del Producto</label>
+                                    <input type="text" class="form-control" name="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Categoría</label>
+                                    <select class="form-select" name="category" required>
+                                        <option value="">Seleccionar categoría</option>
+                                        <option value="electronics">Electrónicos</option>
+                                        <option value="clothing">Ropa</option>
+                                        <option value="food">Comida</option>
+                                        <option value="services">Servicios</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Precio</label>
+                                    <input type="number" class="form-control" name="price" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Stock</label>
+                                    <input type="number" class="form-control" name="stock" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Descripción</label>
+                                    <textarea class="form-control" name="description" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Imagen</label>
+                                    <input type="file" class="form-control" name="image" accept="image/*">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="addProduct()">Agregar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProductsData();
+        });
+
+        function loadProductsData() {
+            // Simular carga de datos
+            document.getElementById('total-products').textContent = '0';
+            document.getElementById('total-categories').textContent = '0';
+            document.getElementById('total-sales').textContent = '$0';
+            document.getElementById('avg-rating').textContent = '0.0';
+            
+            // Simular tabla vacía
+            document.getElementById('products-table').innerHTML = 
+                '<tr><td colspan="7" class="text-center">No hay productos registrados</td></tr>';
+        }
+
+        function refreshProducts() {
+            loadProductsData();
+        }
+
+        function showAddProductModal() {
+            new bootstrap.Modal(document.getElementById('addProductModal')).show();
+        }
+
+        function addProduct() {
+            const form = document.getElementById('addProductForm');
+            const formData = new FormData(form);
+            
+            // Aquí iría la lógica para agregar producto
+            alert('Producto agregado correctamente');
+            
+            // Cerrar modal y recargar datos
+            bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+            loadProductsData();
+        }
+    </script>
+</body>
+</html>

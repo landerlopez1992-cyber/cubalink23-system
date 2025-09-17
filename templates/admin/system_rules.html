@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reglas del Sistema - Panel Administrativo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin-common.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <img src="/static/img/company-logo.svg" alt="Cubalink23 Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                        <h4 class="text-white">Cubalink23 Admin</h4>
+                        <small class="text-white-50">Panel de Administración</small>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/users">
+                                <i class="fas fa-users me-2"></i>
+                                Usuarios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/products">
+                                <i class="fas fa-box me-2"></i>
+                                Productos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/orders">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Órdenes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/flights">
+                                <i class="fas fa-plane me-2"></i>
+                                Vuelos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/system">
+                                <i class="fas fa-cog me-2"></i>
+                                Sistema
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/vendors">
+                                <i class="fas fa-store me-2"></i>
+                                Vendedores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/drivers">
+                                <i class="fas fa-truck me-2"></i>
+                                Repartidores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/vehicles">
+                                <i class="fas fa-car me-2"></i>
+                                Renta Car
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/alerts">
+                                <i class="fas fa-bell me-2"></i>
+                                Alertas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/support-chat">
+                                <i class="fas fa-comments me-2"></i>
+                                Chat Soporte
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/wallet">
+                                <i class="fas fa-wallet me-2"></i>
+                                Billetera
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/payment-methods">
+                                <i class="fas fa-credit-card me-2"></i>
+                                Métodos de Pago
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/payroll">
+                                <i class="fas fa-money-bill-wave me-2"></i>
+                                Nómina
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white active" href="/admin/system-rules">
+                                <i class="fas fa-book me-2"></i>
+                                Reglas del Sistema
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link text-danger" href="/logout">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="background-color: #1a1a2e;">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2 text-white">
+                        <i class="fas fa-book text-white me-2"></i>
+                        Reglas del Sistema
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-download me-1"></i>
+                                Exportar
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-print me-1"></i>
+                                Imprimir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reglas del Sistema -->
+                <div class="row">
+                    <div class="col-12">
+                        
+                        <!-- 1. FLUJO DE ESTADOS DE ÓRDENES -->
+                        <div class="rule-section">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-route me-2"></i>
+                                1. FLUJO DE ESTADOS DE ÓRDENES
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Creación de Orden</div>
+                                <div class="rule-description">
+                                    Al realizar compra/pago → "Orden Creada"
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Procesamiento de Orden</div>
+                                <div class="rule-description">
+                                    Vendedor (para órdenes de vendedor) o Administrador (para órdenes del sistema como Amazon) → "Procesando Orden"
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card warning">
+                                <div class="rule-title">Envío y Entrega</div>
+                                <div class="rule-description">
+                                    <strong>Envío Express (Sistema/Admin):</strong> Orden va a repartidores → "Aceptar Orden" → "Orden en Tránsito" → "Orden en Reparto" → "Orden Entregada" (con foto)
+                                    <br><strong>Envío Express (Vendedor):</strong> Vendedor elige usar repartidores de la app → mismo flujo que sistema
+                                    <br><strong>Envío Barco:</strong> Solo administrador maneja estados
+                                    <br><strong>Envío Vendedor:</strong> Vendedor maneja todos los estados con misma botonera
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. CONFIGURACIÓN DE ENTREGA POR VENDEDOR -->
+                        <div class="rule-section">
+                            <h3 class="text-success mb-3">
+                                <i class="fas fa-store me-2"></i>
+                                2. CONFIGURACIÓN DE ENTREGA POR VENDEDOR
+                            </h3>
+                            
+                            <div class="rule-item rule-card success">
+                                <div class="rule-title">Configuración por Producto</div>
+                                <div class="rule-description">
+                                    Vendedor marca qué productos puede entregar él mismo. Si no marca producto como "entregable por vendedor", cliente NO puede elegir ese método.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Control Automático</div>
+                                <div class="rule-description">
+                                    Sistema detecta automáticamente qué métodos de envío están disponibles según configuración del vendedor.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. SISTEMA DE ENVÍOS -->
+                        <div class="rule-section">
+                            <h3 class="text-info mb-3">
+                                <i class="fas fa-shipping-fast me-2"></i>
+                                3. SISTEMA DE ENVÍOS
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Tipos de Envío Disponibles</div>
+                                <div class="rule-description">
+                                    <strong>Envío Express (Sistema/Admin):</strong> Para productos del sistema como Amazon, gestionado por administrador
+                                    <br><strong>Envío Express (Vendedor):</strong> Vendedor puede elegir usar repartidores de la app para sus productos
+                                    <br><strong>Envío Vendedor:</strong> Vendedor entrega personalmente sus productos
+                                    <br><strong>Envío Barco:</strong> Solo administrador maneja estados
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Configuración de Entrega por Producto</div>
+                                <div class="rule-description">
+                                    Vendedor marca qué productos puede entregar él mismo. Si no marca producto como "entregable por vendedor", cliente NO puede elegir ese método de envío.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Control Automático de Métodos</div>
+                                <div class="rule-description">
+                                    Sistema detecta automáticamente qué métodos de envío están disponibles según configuración del vendedor y filtra opciones para el cliente.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. DETECCIÓN DE DIFERENCIAS DE ENTREGA -->
+                        <div class="rule-section">
+                            <h3 class="text-warning mb-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                4. DETECCIÓN DE DIFERENCIAS DE ENTREGA
+                            </h3>
+                            
+                            <div class="rule-item rule-card warning">
+                                <div class="rule-title">Detección Automática de Diferencias</div>
+                                <div class="rule-description">
+                                    Sistema detecta automáticamente diferentes vendedores (Amazon USA vs Vendedor Cuba), métodos de envío y tiempos de entrega cuando usuario agrega productos al carrito.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Notificación al Usuario</div>
+                                <div class="rule-description">
+                                    Sistema muestra alerta: "Sus productos tienen diferentes tiempos de entrega" con opciones: CONTINUAR (pedidos separados), QUITAR PRODUCTOS, o REVISAR detalles.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Separación Automática de Órdenes</div>
+                                <div class="rule-description">
+                                    Si usuario continúa: sistema crea órdenes separadas automáticamente con seguimiento individual de cada pedido y notificaciones separadas por cada entrega.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Ejemplos de Diferencias Detectadas</div>
+                                <div class="rule-description">
+                                    Producto A (Amazon): 15-30 días vs Producto B (Vendedor): 1-2 días vs Producto C (Sistema): 3-5 días → Sistema detecta y separa automáticamente.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. GESTIÓN DE VUELOS -->
+                        <div class="rule-section">
+                            <h3 class="text-info mb-3">
+                                <i class="fas fa-plane me-2"></i>
+                                5. GESTIÓN DE VUELOS
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Integración con Duffel API</div>
+                                <div class="rule-description">
+                                    Sistema integrado completamente con Duffel API para búsqueda, reserva y gestión de vuelos en tiempo real.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Edición de Boletos</div>
+                                <div class="rule-description">
+                                    Solo si Duffel API permite: editar fechas de ida/regreso, cancelar, cambiar asiento. Depende de si boleto es reembolsable/cambiable.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Edición de Boletos YA COMPRADOS Y PAGADOS</div>
+                                <div class="rule-description">
+                                    Administrador puede editar fechas de ida y regreso, cambiar asientos y cancelar boletos YA COMPRADOS Y PAGADOS desde el panel web.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Restricciones de Duffel API</div>
+                                <div class="rule-description">
+                                    Las opciones de edición/cancelación dependen de las políticas de Duffel API al momento de la compra. Si un pasaje no es reembolsable, no se puede cancelar.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Control Automático de Opciones</div>
+                                <div class="rule-description">
+                                    El sistema automáticamente desactiva opciones (editar, cancelar, reembolsar) según las políticas del boleto obtenido de Duffel API.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Políticas de Boleto</div>
+                                <div class="rule-description">
+                                    Ejemplo: Si un pasaje no permite cambios, no se podrá cambiar. Si no es reembolsable, no se podrá reembolsar. El sistema respeta estas políticas automáticamente.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Verificación de Políticas</div>
+                                <div class="rule-description">
+                                    Sistema verifica automáticamente políticas de reembolso y cambio de Duffel API antes de permitir modificaciones a boletos adquiridos.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Gestión de Reservas</div>
+                                <div class="rule-description">
+                                    Administrador puede gestionar todas las reservas de vuelos desde el panel, incluyendo verificación de estado y comunicación con usuarios.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6. RENTA DE AUTOS -->
+                        <div class="rule-section">
+                            <h3 class="text-secondary mb-3">
+                                <i class="fas fa-car me-2"></i>
+                                6. RENTA DE AUTOS
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Sistema Completamente Manual</div>
+                                <div class="rule-description">
+                                    Flujo manual: usuario solicita verificación → sistema notifica administrador → administrador verifica en rentcarcuba.com → actualiza sistema → comunica resultado al usuario.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Verificación en rentcarcuba.com</div>
+                                <div class="rule-description">
+                                    Administrador debe verificar manualmente disponibilidad y precios en rentcarcuba.com para cada solicitud de alquiler de auto.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Comisión por Alquiler</div>
+                                <div class="rule-description">
+                                    $50 comisión por alquiler exitoso. Usuario NO debe conocer sitio de referencia (rentcarcuba.com).
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Notificación de Resultados</div>
+                                <div class="rule-description">
+                                    Sistema notifica automáticamente al usuario el resultado de la verificación con detalles de disponibilidad y precios.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 7. RECARGAS TELEFÓNICAS -->
+                        <div class="rule-section">
+                            <h3 class="text-danger mb-3">
+                                <i class="fas fa-mobile-alt me-2"></i>
+                                7. RECARGAS TELEFÓNICAS
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Integración con DingConnect API</div>
+                                <div class="rule-description">
+                                    Sistema integrado con DingConnect API para procesamiento automático de recargas telefónicas en tiempo real.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card danger">
+                                <div class="rule-title">Manejo de Errores por Saldo Insuficiente</div>
+                                <div class="rule-description">
+                                    Si error por saldo insuficiente en DingConnect: alerta completa en panel admin, pero usuario solo ve "recarga pendiente en trámite".
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Alertas Automáticas al Administrador</div>
+                                <div class="rule-description">
+                                    Sistema genera alertas automáticas en panel de administración cuando hay errores de DingConnect API o saldo insuficiente.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Gestión de Recargas Pendientes</div>
+                                <div class="rule-description">
+                                    Administrador puede gestionar recargas pendientes desde el panel, incluyendo reembolsos o reprocesamiento cuando sea necesario.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 8. BILLETERA DIGITAL -->
+                        <div class="rule-section">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-wallet me-2"></i>
+                                8. BILLETERA DIGITAL
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Transferencias</div>
+                                <div class="rule-description">
+                                    Usuarios/vendedores/repartidores pueden transferirse saldo entre sí y pagar servicios dentro de la app.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 9. MÉTODOS DE PAGO -->
+                        <div class="rule-section">
+                            <h3 class="text-success mb-3">
+                                <i class="fas fa-credit-card me-2"></i>
+                                9. MÉTODOS DE PAGO
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Opciones para Vendedores/Repartidores</div>
+                                <div class="rule-description">
+                                    CASH y tarjeta de crédito/débito. Administrador puede activar/desactivar CASH como método de cobro.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 10. CHAT DE SOPORTE Y COMUNICACIÓN -->
+                        <div class="rule-section">
+                            <h3 class="text-info mb-3">
+                                <i class="fas fa-comments me-2"></i>
+                                10. CHAT DE SOPORTE Y COMUNICACIÓN
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">WebSockets para Comunicación en Tiempo Real</div>
+                                <div class="rule-description">
+                                    Sistema utiliza WebSockets para comunicación instantánea entre usuarios, vendedores, repartidores y administradores sin necesidad de refrescar página.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Atención al Cliente</div>
+                                <div class="rule-description">
+                                    Usuarios, vendedores y repartidores pueden escribir para soporte y dudas desde sus respectivas interfaces con respuesta inmediata.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Notificaciones Push</div>
+                                <div class="rule-description">
+                                    Sistema envía notificaciones push automáticas cuando hay nuevos mensajes, cambios de estado de pedidos o alertas importantes.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 10.1. COMUNICACIÓN ENTRE USUARIOS -->
+                        <div class="rule-section">
+                            <h3 class="text-info mb-3">
+                                <i class="fas fa-comments me-2"></i>
+                                10.1. COMUNICACIÓN ENTRE USUARIOS
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Chat Directo por Pedido</div>
+                                <div class="rule-description">
+                                    Usuarios pueden enviar mensajes directamente al vendedor, repartidor o administrador según el tipo de pedido creado.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card warning">
+                                <div class="rule-title">Alertas Automáticas por Demoras</div>
+                                <div class="rule-description">
+                                    Si pedido se demora más del tiempo estimado: sistema envía alerta automática al administrador + mensaje de preocupación del cliente.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Comunicación Directa con Repartidor</div>
+                                <div class="rule-description">
+                                    Cliente puede contactar directamente al repartidor durante el proceso de entrega para consultas sobre ubicación, estado del pedido y tiempo de llegada.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Chat en Tiempo Real</div>
+                                <div class="rule-description">
+                                    Sistema de chat en tiempo real entre cliente y repartidor durante todo el proceso de entrega, con notificaciones automáticas.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card danger">
+                                <div class="rule-title">Sistema de Sanciones para Vendedores</div>
+                                <div class="rule-description">
+                                    Si vendedor no procesa pedido a tiempo: sistema transmite mensaje de preocupación al vendedor obligándolo a procesar. A la 4ª vez del mismo problema → VENDEDOR SUSPENDIDO automáticamente.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Comunicación con Repartidor</div>
+                                <div class="rule-description">
+                                    Cliente puede contactar directamente al repartidor durante el proceso de entrega para consultas sobre ubicación o estado.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 10.2. SISTEMA DE CALIFICACIONES -->
+                        <div class="rule-section">
+                            <h3 class="text-warning mb-3">
+                                <i class="fas fa-star me-2"></i>
+                                10.2. SISTEMA DE CALIFICACIONES
+                            </h3>
+                            
+                            <div class="rule-item rule-card success">
+                                <div class="rule-title">Calificación Post-Entrega</div>
+                                <div class="rule-description">
+                                    Al cambiar a "Orden Entregada" y ver foto: sistema muestra cortina modal automáticamente para calificar repartidor y vendedor con estrellas (1-5) y comentarios detallados.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Posicionamiento Automático por Calificaciones</div>
+                                <div class="rule-description">
+                                    Sistema de ranking automático: vendedores con buenas calificaciones (4-5 estrellas) aparecen PRIMERO en búsquedas, malas calificaciones (1-2 estrellas) aparecen AL FINAL.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card danger">
+                                <div class="rule-title">Alertas de Mala Calificación</div>
+                                <div class="rule-description">
+                                    Sistema automáticamente notifica al administrador sobre: mala calificación (1-2 estrellas), productos defectuosos reportados, problemas de entrega mencionados.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Alertas de Productos Defectuosos</div>
+                                <div class="rule-description">
+                                    Si cliente reporta producto defectuoso en calificación: sistema genera alerta automática al administrador con detalles del problema y vendedor afectado.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 11. DISEÑO VISUAL -->
+                        <div class="rule-section">
+                            <h3 class="text-warning mb-3">
+                                <i class="fas fa-palette me-2"></i>
+                                11. DISEÑO VISUAL
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Aplicación Flutter</div>
+                                <div class="rule-description">
+                                    Aplicar diseño visual idéntico a tropiplus_supermarket para pantallas de productos y tienda. Eliminar color lila/violeta.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Web vs Mobile</div>
+                                <div class="rule-description">
+                                    Web y apps Android/iOS comparten branding pero tienen diferentes estilos visuales. No clonar exactamente diseño mobile para web.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 12. DATOS Y FUNCIONALIDAD -->
+                        <div class="rule-section">
+                            <h3 class="text-dark mb-3">
+                                <i class="fas fa-database me-2"></i>
+                                12. DATOS Y FUNCIONALIDAD
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Sin Datos de Prueba</div>
+                                <div class="rule-description">
+                                    No usar datos de prueba o demo. Todo debe ser original y funcional.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Enfoque de Desarrollo</div>
+                                <div class="rule-description">
+                                    Concentrarse primero en datos, funciones y lógica. Aspectos visuales después.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 13. REGLAS ESPECÍFICAS DE NEGOCIO -->
+                        <div class="rule-section">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-business-time me-2"></i>
+                                13. REGLAS ESPECÍFICAS DE NEGOCIO
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Configuración de Entrega por Vendedor</div>
+                                <div class="rule-description">
+                                    Vendedor marca qué productos puede entregar él mismo. Si no marca producto como "entregable por vendedor", cliente NO puede elegir ese método.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Detección de Diferencias de Entrega</div>
+                                <div class="rule-description">
+                                    Sistema detecta automáticamente diferentes vendedores, métodos de envío y tiempos de entrega. Usuario puede continuar (pedidos separados) o quitar productos.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Comunicación por Chat</div>
+                                <div class="rule-description">
+                                    Usuarios pueden enviar mensajes directamente al vendedor, repartidor o administrador según el tipo de pedido. Sistema transmite mensajes de preocupación automáticamente.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Sistema de Calificaciones</div>
+                                <div class="rule-description">
+                                    Al entregar pedido: cortina para calificar repartidor y vendedor. Calificaciones determinan posicionamiento. Sistema notifica al administrador sobre mala calificación.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Billetera Digital</div>
+                                <div class="rule-description">
+                                    Usuarios/vendedores/repartidores pueden transferirse saldo entre sí y pagar servicios dentro de la app.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Transferencias por Correo/Número</div>
+                                <div class="rule-description">
+                                    Usuarios, vendedores y repartidores pueden enviar saldo entre sí usando correo electrónico o número de teléfono como identificador del destinatario.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Saldo como Método de Pago</div>
+                                <div class="rule-description">
+                                    El saldo de la billetera digital funciona como método de pago (similar a Zelle) para transacciones entre usuarios, vendedores y repartidores. Todos pueden transferir saldo entre sí.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Transferencias Bidireccionales</div>
+                                <div class="rule-description">
+                                    Las transferencias de saldo son bidireccionales: Usuario ↔ Vendedor ↔ Repartidor. Cualquiera puede enviar saldo a cualquiera usando correo o número de teléfono.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Métodos de Pago</div>
+                                <div class="rule-description">
+                                    CASH y tarjeta de crédito/débito para vendedores/repartidores. Administrador puede activar/desactivar CASH como método de cobro.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Métodos de Pago para Usuarios</div>
+                                <div class="rule-description">
+                                    Usuarios pueden pagar con: tarjeta de crédito/débito (Square), Zelle con cortina de confirmación y foto de transacción.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Proceso de Pago con Zelle</div>
+                                <div class="rule-description">
+                                    Usuario envía foto de transacción Zelle → orden pasa a "Pago Pendiente" → administrador verifica y determina "Pagado" o "Cancelado".
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Sistema de Sanciones Automático</div>
+                                <div class="rule-description">
+                                    Escalación de sanciones: 1ª vez (mensaje de preocupación), 2ª vez (advertencia seria), 3ª vez (última advertencia), 4ª vez (VENDEDOR SUSPENDIDO automáticamente).
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Contador de Infracciones</div>
+                                <div class="rule-description">
+                                    Sistema cuenta automáticamente las infracciones por vendedor. A la 4ª vez del mismo problema → suspensión automática sin intervención manual.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Mensaje Obligatorio de Procesamiento</div>
+                                <div class="rule-description">
+                                    Si vendedor no procesa pedido a tiempo: sistema transmite mensaje de preocupación del cliente al vendedor obligándolo a procesar el pedido inmediatamente.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Alertas de Mala Calificación</div>
+                                <div class="rule-description">
+                                    Sistema automáticamente notifica al administrador sobre: mala calificación, productos defectuosos, problemas de entrega.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 14. REGISTRO COMPLETO DE USUARIOS -->
+                        <div class="rule-section">
+                            <h3 class="text-success mb-3">
+                                <i class="fas fa-user-shield me-2"></i>
+                                14. REGISTRO COMPLETO DE USUARIOS
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Panel de Administración Completo</div>
+                                <div class="rule-description">
+                                    Administrador puede ver registro completo de cada usuario: transferencias de saldo, historial de chat, historial de compras, reservas aéreas y métodos de pago.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Historial de Transferencias</div>
+                                <div class="rule-description">
+                                    Registro completo de todas las transferencias de saldo realizadas por cada usuario, incluyendo destinatario, monto, fecha y estado.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Historial de Chat</div>
+                                <div class="rule-description">
+                                    Administrador puede ver historial completo de conversaciones entre usuarios, vendedores y repartidores para supervisión y soporte.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Historial de Compras</div>
+                                <div class="rule-description">
+                                    Registro detallado de todas las compras: Amazon, tienda local, productos del sistema, con fechas, montos y estados de entrega.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Reservas Aéreas</div>
+                                <div class="rule-description">
+                                    Historial completo de reservas de vuelos realizadas por cada usuario, incluyendo detalles de Duffel API y estados de boletos.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Métodos de Pago Utilizados</div>
+                                <div class="rule-description">
+                                    Registro de todos los métodos de pago utilizados por cada usuario: Square, Zelle, saldo de billetera, con fechas y montos.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Direcciones Guardadas</div>
+                                <div class="rule-description">
+                                    Registro de todas las direcciones de entrega guardadas por cada usuario para envíos de productos y servicios.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Métodos de Pago Guardados</div>
+                                <div class="rule-description">
+                                    Los métodos de pago se guardan de forma segura. Solo se muestran los últimos 4 dígitos para referencia del usuario.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Uso de Métodos de Pago</div>
+                                <div class="rule-description">
+                                    Los métodos de pago guardados solo se pueden usar dentro de la app cuando el cliente autoriza una transacción específica.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Seguridad de Datos</div>
+                                <div class="rule-description">
+                                    Los datos de pago están encriptados y no se pueden copiar ni ver completos. Solo la empresa tiene acceso para procesar transacciones autorizadas.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Fotos de Transacciones Zelle</div>
+                                <div class="rule-description">
+                                    Administrador puede ver y verificar todas las fotos de transacciones Zelle enviadas por usuarios para confirmar pagos.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Estados de Pago</div>
+                                <div class="rule-description">
+                                    Control completo de estados de pago: Pendiente, Pagado, Cancelado. Administrador puede cambiar estados según verificación.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 15. SEGURIDAD DE MÉTODOS DE PAGO -->
+                        <div class="rule-section">
+                            <h3 class="text-success mb-3">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                15. SEGURIDAD DE MÉTODOS DE PAGO
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Encriptación de Datos</div>
+                                <div class="rule-description">
+                                    Todos los datos de métodos de pago están encriptados y almacenados de forma segura en la base de datos.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Visualización Limitada</div>
+                                <div class="rule-description">
+                                    Solo se muestran los últimos 4 dígitos de tarjetas de crédito/débito para identificación del usuario.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Autorización Requerida</div>
+                                <div class="rule-description">
+                                    Los métodos de pago guardados solo se pueden usar cuando el cliente autoriza explícitamente una transacción específica.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Acceso Restringido</div>
+                                <div class="rule-description">
+                                    Solo el sistema de la empresa puede acceder a los datos completos para procesar transacciones autorizadas.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">No Copia de Datos</div>
+                                <div class="rule-description">
+                                    Los datos de pago no se pueden copiar, exportar ni ver completos desde la interfaz de usuario.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Auditoría de Acceso</div>
+                                <div class="rule-description">
+                                    Se registra cada acceso a datos de pago para auditoría y seguridad del sistema.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 16. INFORMACIÓN DE CONTACTO DE LA EMPRESA -->
+                        <div class="rule-section">
+                            <h3 class="text-success mb-3">
+                                <i class="fas fa-building me-2"></i>
+                                15. INFORMACIÓN DE CONTACTO DE LA EMPRESA
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Configuración de Contacto</div>
+                                <div class="rule-description">
+                                    Administrador puede configurar desde el panel web: teléfono de contacto, email, WhatsApp, dirección de la empresa.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Visualización en App</div>
+                                <div class="rule-description">
+                                    La información de contacto se muestra automáticamente en todas las pantallas de la app donde sea necesaria.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Términos y Políticas</div>
+                                <div class="rule-description">
+                                    Administrador puede editar términos y condiciones, políticas de privacidad desde el panel web.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Actualización Automática</div>
+                                <div class="rule-description">
+                                    Los cambios en información de contacto se reflejan inmediatamente en la app sin necesidad de actualización.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Múltiples Canales</div>
+                                <div class="rule-description">
+                                    Soporte para múltiples canales de contacto: teléfono, email, WhatsApp, dirección física, redes sociales.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 17. SISTEMA DE RENTA DE AUTOS -->
+                        <div class="rule-section">
+                            <h3 class="text-success mb-3">
+                                <i class="fas fa-car me-2"></i>
+                                17. SISTEMA DE RENTA DE AUTOS
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Gestión Completa de Vehículos</div>
+                                <div class="rule-description">
+                                    Administrador puede agregar vehículos con: foto de portada, precio por día, precio tanque lleno, políticas, términos y condiciones, disponibilidad.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Restricciones de Tiempo</div>
+                                <div class="rule-description">
+                                    Anticipación mínima: 4 días (no se puede rentar para recoger mañana). Tiempo máximo de alquiler: 1 mes. Sistema valida automáticamente estas restricciones.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Flujo de Alquiler</div>
+                                <div class="rule-description">
+                                    Usuario elige vehículo y fechas → Sistema crea pedido pendiente → Admin verifica disponibilidad → Admin acepta → Usuario paga → Se crea reserva.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Sistema de Pago con Contador</div>
+                                <div class="rule-description">
+                                    Usuario debe pagar rápidamente. Contador de 30 minutos en pedidos pendientes. Si llega a 0 sin pago, se cancela automáticamente y otro usuario puede rentar ese auto.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Métodos de Pago de la App</div>
+                                <div class="rule-description">
+                                    Usuarios pueden pagar con: tarjetas de crédito/débito, Zelle, saldo de billetera digital. Todos los métodos están integrados en la app.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Formulario Obligatorio de Pago</div>
+                                <div class="rule-description">
+                                    Usuario debe completar: nombre completo, correo electrónico, número de licencia, número de pasaporte. Correo recibe recibo de reserva.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Política de Responsabilidad</div>
+                                <div class="rule-description">
+                                    Si cliente se equivoca en datos, fechas, lugar o hora, no nos hacemos responsables. Cliente debe resolver en Cuba por sus medios.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Comisión y Precios</div>
+                                <div class="rule-description">
+                                    Precios de primera mano de rentcarcuba.com. Nuestra ganancia: $50 por reserva. Incluye: tanque lleno, seguro, cambio de lugar, chofer adicional.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Competencia por Vehículos</div>
+                                <div class="rule-description">
+                                    Si un usuario demora en pagar, otro usuario puede rentar el mismo auto si hace el pedido y paga primero. Sistema prioriza pagos completados.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Contador de Tiempo en App Usuario</div>
+                                <div class="rule-description">
+                                    En la app del usuario, al lado del pedido pendiente aparece un contador de 30 minutos. Si llega a 0 sin pago, el pedido se cancela automáticamente.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Notificaciones Automáticas</div>
+                                <div class="rule-description">
+                                    Sistema envía notificaciones y correos automáticamente: confirmación de disponibilidad, recordatorio de pago, confirmación de reserva, alertas de tiempo límite.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 18. VISUALIZACIÓN DE REPARTIDORES -->
+                        <div class="rule-section">
+                            <h3 class="text-success mb-3">
+                                <i class="fas fa-user-circle me-2"></i>
+                                18. VISUALIZACIÓN DE REPARTIDORES
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Foto y Nombre del Repartidor</div>
+                                <div class="rule-description">
+                                    En el estado de la orden, el usuario puede ver la foto de perfil del repartidor a cargo de su pedido, además del nombre completo.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Información del Repartidor</div>
+                                <div class="rule-description">
+                                    Usuario ve: foto de perfil, nombre completo, estado actual del repartidor (en tránsito, en reparto, etc.) en tiempo real.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Seguimiento en Tiempo Real</div>
+                                <div class="rule-description">
+                                    La información del repartidor se actualiza automáticamente según el estado de la orden y la ubicación del repartidor.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 19. SISTEMA DE NOTIFICACIONES -->
+                        <div class="rule-section">
+                            <h3 class="text-success mb-3">
+                                <i class="fas fa-bell me-2"></i>
+                                19. SISTEMA DE NOTIFICACIONES
+                            </h3>
+                            
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Notificaciones para Usuarios</div>
+                                <div class="rule-description">
+                                    Todas las notificaciones enviadas a los usuarios entran por la campanita de notificaciones. El usuario debe abrir la campanita para ver las notificaciones.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Notificaciones para Repartidores/Vendedores</div>
+                                <div class="rule-description">
+                                    Todas las notificaciones enviadas a repartidores y vendedores aparecen como una ventana emergente en la pantalla cuando abren la app.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Tipos de Notificaciones</div>
+                                <div class="rule-description">
+                                    Notificaciones incluyen: nuevos pedidos, cambios de estado, recordatorios de pago, confirmaciones, alertas de tiempo límite, mensajes de soporte.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Prioridad de Notificaciones</div>
+                                <div class="rule-description">
+                                    Notificaciones urgentes (pagos pendientes, tiempo límite) aparecen inmediatamente. Notificaciones normales se acumulan en la campanita.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Configuración de Notificaciones</div>
+                                <div class="rule-description">
+                                    Usuarios pueden configurar qué notificaciones recibir. Repartidores/vendedores reciben todas las notificaciones relacionadas con su trabajo.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Notificaciones Push</div>
+                                <div class="rule-description">
+                                    Sistema envía notificaciones push al dispositivo. Usuarios: campanita. Repartidores/Vendedores: ventana emergente al abrir app.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Ventanas Emergentes</div>
+                                <div class="rule-description">
+                                    Repartidores y vendedores ven notificaciones como ventanas emergentes que aparecen automáticamente al abrir la aplicación.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Historial de Notificaciones</div>
+                                <div class="rule-description">
+                                    Todas las notificaciones se guardan en historial. Usuarios pueden ver historial en campanita. Repartidores/vendedores en sección de notificaciones.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Marcado de Leídas</div>
+                                <div class="rule-description">
+                                    Notificaciones se marcan como leídas automáticamente al abrirlas. Contador de no leídas se actualiza en tiempo real.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Notificaciones con Sonido para Repartidores/Vendedores</div>
+                                <div class="rule-description">
+                                    Las notificaciones para repartidores y vendedores (pedidos pendientes, pedidos atrasados, notificaciones del sistema/admin) deben sonar. El sistema pedirá acceso a los tonos del teléfono y notificaciones de sonidos aunque el teléfono esté en modo silencio.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Acceso a Tonos del Teléfono</div>
+                                <div class="rule-description">
+                                    La app solicita permisos para acceder a los tonos del teléfono y reproducir notificaciones de sonido incluso cuando el dispositivo está en modo silencio o vibración.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Tipos de Notificaciones con Sonido</div>
+                                <div class="rule-description">
+                                    Pedidos pendientes, pedidos atrasados, alertas del sistema, mensajes del administrador, recordatorios de entrega, y todas las notificaciones críticas para el trabajo.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Prioridad de Sonido</div>
+                                <div class="rule-description">
+                                    Las notificaciones de trabajo tienen prioridad alta y pueden sobrescribir la configuración de silencio del teléfono para asegurar que repartidores y vendedores no pierdan pedidos importantes.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Configuración de Permisos</div>
+                                <div class="rule-description">
+                                    Al instalar la app, repartidores y vendedores deben otorgar permisos para: notificaciones push, acceso a tonos del sistema, reproducción de audio en segundo plano, y sobrescribir modo silencio.
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Sonidos Personalizados</div>
+                                <div class="rule-description">
+                                    Diferentes tipos de notificaciones tienen sonidos distintos: pedido nuevo (tono alto), pedido atrasado (tono urgente), mensaje admin (tono medio), recordatorio (tono suave).
+                                </div>
+                            </div>
+
+                            <div class="rule-item rule-card">
+                                <div class="rule-title">Configuración de Usuario</div>
+                                <div class="rule-description">
+                                    Los usuarios pueden configurar el volumen de las notificaciones, pero no pueden desactivar completamente el sonido para notificaciones críticas de trabajo.
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

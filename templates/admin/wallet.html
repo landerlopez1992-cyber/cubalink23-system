@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billetera Digital - Panel Administrativo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin-common.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <img src="/static/img/company-logo.svg" alt="Cubalink23 Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                        <h4 class="text-white">Cubalink23 Admin</h4>
+                        <small class="text-white-50">Panel de Administración</small>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/users">
+                                <i class="fas fa-users me-2"></i>
+                                Usuarios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/products">
+                                <i class="fas fa-box me-2"></i>
+                                Productos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/orders">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Órdenes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/flights">
+                                <i class="fas fa-plane me-2"></i>
+                                Vuelos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/system">
+                                <i class="fas fa-cog me-2"></i>
+                                Sistema
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/vendors">
+                                <i class="fas fa-store me-2"></i>
+                                Vendedores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/drivers">
+                                <i class="fas fa-truck me-2"></i>
+                                Repartidores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/vehicles">
+                                <i class="fas fa-car me-2"></i>
+                                Renta Car
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/alerts">
+                                <i class="fas fa-bell me-2"></i>
+                                Alertas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/support-chat">
+                                <i class="fas fa-comments me-2"></i>
+                                Chat Soporte
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white active" href="/admin/wallet">
+                                <i class="fas fa-wallet me-2"></i>
+                                Billetera
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/payment-methods">
+                                <i class="fas fa-credit-card me-2"></i>
+                                Métodos de Pago
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/payroll">
+                                <i class="fas fa-money-bill-wave me-2"></i>
+                                Nómina
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/system-rules">
+                                <i class="fas fa-book me-2"></i>
+                                Reglas del Sistema
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link text-danger" href="/logout">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="background-color: #1a1a2e;">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2 text-white">
+                        <i class="fas fa-wallet text-white me-2"></i>
+                        Billetera Digital
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#transferModal">
+                                <i class="fas fa-exchange-alt me-1"></i>
+                                Nueva Transferencia
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addFundsModal">
+                                <i class="fas fa-plus me-1"></i>
+                                Agregar Fondos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card wallet-card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-dollar-sign fa-2x mb-3 text-success"></i></h5>
+                                <p class="card-text fs-4" id="total-balance">$0.00</p>
+                                <p class="card-text">Saldo Total del Sistema</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card wallet-card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-exchange-alt fa-2x mb-3 text-primary"></i></h5>
+                                <p class="card-text fs-4" id="total-transfers">0</p>
+                                <p class="card-text">Transferencias Hoy</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card wallet-card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-users fa-2x mb-3 text-info"></i></h5>
+                                <p class="card-text fs-4" id="active-wallets">0</p>
+                                <p class="card-text">Billeteras Activas</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card wallet-card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-chart-line fa-2x mb-3 text-warning"></i></h5>
+                                <p class="card-text fs-4" id="avg-transaction">$0.00</p>
+                                <p class="card-text">Promedio por Transacción</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="row">
+                    <!-- Transfer Form -->
+                    <div class="col-md-4">
+                        <div class="transfer-form">
+                            <h5 class="mb-3">
+                                <i class="fas fa-exchange-alt me-2"></i>
+                                Nueva Transferencia
+                            </h5>
+                            <form id="transferForm">
+                                <div class="mb-3">
+                                    <label for="fromUser" class="form-label">De:</label>
+                                    <select class="form-select" id="fromUser" required>
+                                        <option value="">Seleccionar usuario</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="toUser" class="form-label">Para:</label>
+                                    <select class="form-select" id="toUser" required>
+                                        <option value="">Seleccionar usuario</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="amount" class="form-label">Monto:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" id="amount" step="0.01" min="0.01" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Descripción:</label>
+                                    <textarea class="form-control" id="description" rows="3" placeholder="Motivo de la transferencia"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-paper-plane me-2"></i>
+                                    Enviar Transferencia
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Recent Transactions -->
+                    <div class="col-md-8">
+                        <h5 class="mb-3">
+                            <i class="fas fa-history me-2"></i>
+                            Transacciones Recientes
+                        </h5>
+                        <div id="transactionsList">
+                            <!-- Transactions will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card wallet-card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chart-pie me-2"></i>
+                                    Distribución por Tipo de Usuario
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="userTypeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card wallet-card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chart-line me-2"></i>
+                                    Volumen de Transferencias (Últimos 7 días)
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="transferVolumeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Wallets Table -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card wallet-card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-users me-2"></i>
+                                    Billeteras de Usuarios
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Usuario</th>
+                                                <th>Tipo</th>
+                                                <th>Saldo</th>
+                                                <th>Última Actividad</th>
+                                                <th>Estado</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="walletsTable">
+                                            <!-- Wallets will be loaded here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Transfer Modal -->
+    <div class="modal fade" id="transferModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        Nueva Transferencia
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modalTransferForm">
+                        <div class="mb-3">
+                            <label for="modalFromUser" class="form-label">De:</label>
+                            <select class="form-select" id="modalFromUser" required>
+                                <option value="">Seleccionar usuario</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalToUser" class="form-label">Para:</label>
+                            <select class="form-select" id="modalToUser" required>
+                                <option value="">Seleccionar usuario</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalAmount" class="form-label">Monto:</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="modalAmount" step="0.01" min="0.01" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalDescription" class="form-label">Descripción:</label>
+                            <textarea class="form-control" id="modalDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="submitTransfer()">
+                        <i class="fas fa-paper-plane me-2"></i>
+                        Enviar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Funds Modal -->
+    <div class="modal fade" id="addFundsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i>
+                        Agregar Fondos
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addFundsForm">
+                        <div class="mb-3">
+                            <label for="fundsUser" class="form-label">Usuario:</label>
+                            <select class="form-select" id="fundsUser" required>
+                                <option value="">Seleccionar usuario</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fundsAmount" class="form-label">Monto:</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="fundsAmount" step="0.01" min="0.01" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fundsReason" class="form-label">Motivo:</label>
+                            <select class="form-select" id="fundsReason" required>
+                                <option value="">Seleccionar motivo</option>
+                                <option value="bonus">Bono</option>
+                                <option value="refund">Reembolso</option>
+                                <option value="commission">Comisión</option>
+                                <option value="other">Otro</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="addFunds()">
+                        <i class="fas fa-plus me-2"></i>
+                        Agregar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWalletStats();
+            loadUsers();
+            loadTransactions();
+            loadUserWallets();
+            initializeCharts();
+        });
+
+        // Load wallet statistics
+        function loadWalletStats() {
+            fetch('/admin/api/wallet/stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('total-balance').textContent = '$' + (data.total_balance || 0).toFixed(2);
+                    document.getElementById('total-transfers').textContent = data.total_transfers || 0;
+                    document.getElementById('active-wallets').textContent = data.active_wallets || 0;
+                    document.getElementById('avg-transaction').textContent = '$' + (data.avg_transaction || 0).toFixed(2);
+                })
+                .catch(error => console.error('Error loading wallet stats:', error));
+        }
+
+        // Load users for transfer forms
+        function loadUsers() {
+            fetch('/admin/api/wallet/users')
+                .then(response => response.json())
+                .then(data => {
+                    const userSelects = ['fromUser', 'toUser', 'modalFromUser', 'modalToUser', 'fundsUser'];
+                    userSelects.forEach(selectId => {
+                        const select = document.getElementById(selectId);
+                        select.innerHTML = '<option value="">Seleccionar usuario</option>';
+                        
+                        data.users.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.id;
+                            option.textContent = `${user.name} (${user.type}) - $${user.balance}`;
+                            select.appendChild(option);
+                        });
+                    });
+                })
+                .catch(error => console.error('Error loading users:', error));
+        }
+
+        // Load recent transactions
+        function loadTransactions() {
+            fetch('/admin/api/wallet/transactions')
+                .then(response => response.json())
+                .then(data => {
+                    const transactionsList = document.getElementById('transactionsList');
+                    transactionsList.innerHTML = '';
+                    
+                    data.transactions.forEach(transaction => {
+                        const transactionDiv = document.createElement('div');
+                        transactionDiv.className = `transaction-item ${getTransactionClass(transaction.type)}`;
+                        transactionDiv.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar me-3">
+                                        ${transaction.from_user.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <strong>${transaction.from_user}</strong> → <strong>${transaction.to_user}</strong>
+                                        <br>
+                                        <small class="text-muted">${transaction.description}</small>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold">$${transaction.amount.toFixed(2)}</div>
+                                    <small class="text-muted">${new Date(transaction.timestamp).toLocaleString()}</small>
+                                </div>
+                            </div>
+                        `;
+                        transactionsList.appendChild(transactionDiv);
+                    });
+                })
+                .catch(error => console.error('Error loading transactions:', error));
+        }
+
+        // Load user wallets
+        function loadUserWallets() {
+            fetch('/admin/api/wallet/user-wallets')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('walletsTable');
+                    tbody.innerHTML = '';
+                    
+                    data.wallets.forEach(wallet => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar me-2">
+                                        ${wallet.user_name.charAt(0).toUpperCase()}
+                                    </div>
+                                    ${wallet.user_name}
+                                </div>
+                            </td>
+                            <td><span class="badge bg-${getUserTypeColor(wallet.user_type)}">${wallet.user_type}</span></td>
+                            <td class="fw-bold">$${wallet.balance.toFixed(2)}</td>
+                            <td>${new Date(wallet.last_activity).toLocaleString()}</td>
+                            <td><span class="badge bg-${wallet.status === 'active' ? 'success' : 'secondary'}">${wallet.status}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="viewWalletDetails(${wallet.user_id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning" onclick="editWallet(${wallet.user_id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error loading user wallets:', error));
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            // User Type Distribution Chart
+            const userTypeCtx = document.getElementById('userTypeChart').getContext('2d');
+            new Chart(userTypeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Usuarios', 'Vendedores', 'Repartidores'],
+                    datasets: [{
+                        data: [65, 20, 15],
+                        backgroundColor: ['#007bff', '#28a745', '#ffc107']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Transfer Volume Chart
+            const transferVolumeCtx = document.getElementById('transferVolumeChart').getContext('2d');
+            new Chart(transferVolumeCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    datasets: [{
+                        label: 'Volumen ($)',
+                        data: [1200, 1900, 1500, 2100, 1800, 2500, 2200],
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Submit transfer
+        function submitTransfer() {
+            const fromUser = document.getElementById('modalFromUser').value;
+            const toUser = document.getElementById('modalToUser').value;
+            const amount = parseFloat(document.getElementById('modalAmount').value);
+            const description = document.getElementById('modalDescription').value;
+
+            if (!fromUser || !toUser || !amount || fromUser === toUser) {
+                alert('Por favor completa todos los campos correctamente');
+                return;
+            }
+
+            fetch('/admin/api/wallet/transfer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    from_user: fromUser,
+                    to_user: toUser,
+                    amount: amount,
+                    description: description
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Transferencia realizada exitosamente');
+                    bootstrap.Modal.getInstance(document.getElementById('transferModal')).hide();
+                    loadWalletStats();
+                    loadTransactions();
+                    loadUserWallets();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error realizando la transferencia');
+            });
+        }
+
+        // Add funds
+        function addFunds() {
+            const user = document.getElementById('fundsUser').value;
+            const amount = parseFloat(document.getElementById('fundsAmount').value);
+            const reason = document.getElementById('fundsReason').value;
+
+            if (!user || !amount || !reason) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+
+            fetch('/admin/api/wallet/add-funds', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: user,
+                    amount: amount,
+                    reason: reason
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Fondos agregados exitosamente');
+                    bootstrap.Modal.getInstance(document.getElementById('addFundsModal')).hide();
+                    loadWalletStats();
+                    loadTransactions();
+                    loadUserWallets();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error agregando fondos');
+            });
+        }
+
+        // Helper functions
+        function getTransactionClass(type) {
+            const classes = {
+                'transfer': '',
+                'deposit': 'success',
+                'withdrawal': 'danger',
+                'payment': 'warning'
+            };
+            return classes[type] || '';
+        }
+
+        function getUserTypeColor(type) {
+            const colors = {
+                'user': 'primary',
+                'vendor': 'success',
+                'driver': 'warning',
+                'admin': 'danger'
+            };
+            return colors[type] || 'secondary';
+        }
+
+        function viewWalletDetails(userId) {
+            // Implement wallet details view
+            alert('Ver detalles de billetera para usuario ' + userId);
+        }
+
+        function editWallet(userId) {
+            // Implement wallet edit
+            alert('Editar billetera para usuario ' + userId);
+        }
+
+        // Form submission
+        document.getElementById('transferForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitTransfer();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - {{ config.app_name }}{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Estadísticas principales -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">
+                            Total Búsquedas
+                        </div>
+                        <div class="stat-number" id="total-searches">-</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-search fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">
+                            Usuarios Activos
+                        </div>
+                        <div class="stat-number" id="active-users">-</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">
+                            Vuelos Disponibles
+                        </div>
+                        <div class="stat-number" id="available-flights">-</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-plane fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">
+                            Estado del Sistema
+                        </div>
+                        <div class="stat-number" id="system-status">-</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-server fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Gráfico de búsquedas -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Búsquedas por Día</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="searchesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rutas populares -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Rutas Populares</h6>
+            </div>
+            <div class="card-body">
+                <div id="popular-routes">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Estado del sistema -->
+    <div class="col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Estado del Sistema</h6>
+            </div>
+            <div class="card-body">
+                <div class="row" id="system-status-details">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                            <span>Backend</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                            <span>Duffel API</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                            <span>Supabase</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Cargar estadísticas al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    loadStats();
+    loadPopularRoutes();
+    loadSystemStatus();
+    
+    // Actualizar cada 30 segundos
+    setInterval(function() {
+        loadStats();
+        loadSystemStatus();
+    }, 30000);
+});
+
+function loadStats() {
+    fetch('/admin/stats')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('total-searches').textContent = data.total_searches || 0;
+            document.getElementById('active-users').textContent = data.active_users || 0;
+            document.getElementById('available-flights').textContent = data.available_flights || 0;
+            
+            // Actualizar gráfico
+            updateChart(data);
+        })
+        .catch(error => {
+            console.error('Error cargando estadísticas:', error);
+        });
+}
+
+function loadPopularRoutes() {
+    fetch('/admin/stats')
+        .then(response => response.json())
+        .then(data => {
+            const routesContainer = document.getElementById('popular-routes');
+            if (data.popular_routes && data.popular_routes.length > 0) {
+                let html = '';
+                data.popular_routes.forEach(route => {
+                    html += `
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">${route.route}</span>
+                            <span class="badge bg-primary">${route.searches}</span>
+                        </div>
+                    `;
+                });
+                routesContainer.innerHTML = html;
+            } else {
+                routesContainer.innerHTML = '<p class="text-muted">No hay datos disponibles</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error cargando rutas populares:', error);
+        });
+}
+
+function loadSystemStatus() {
+    fetch('/admin/stats')
+        .then(response => response.json())
+        .then(data => {
+            const statusContainer = document.getElementById('system-status-details');
+            if (data.system_status) {
+                let html = '';
+                Object.entries(data.system_status).forEach(([key, status]) => {
+                    const statusClass = status === 'Online' || status === 'Connected' || status === 'Active' 
+                        ? 'text-success' : 'text-danger';
+                    const iconClass = status === 'Online' || status === 'Connected' || status === 'Active' 
+                        ? 'fas fa-check-circle' : 'fas fa-times-circle';
+                    
+                    html += `
+                        <div class="col-md-4 mb-2">
+                            <div class="d-flex align-items-center">
+                                <i class="${iconClass} ${statusClass} me-2"></i>
+                                <span class="text-capitalize">${key.replace('_', ' ')}</span>
+                                <span class="badge bg-${status === 'Online' || status === 'Connected' || status === 'Active' ? 'success' : 'danger'} ms-2">${status}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                statusContainer.innerHTML = html;
+            }
+        })
+        .catch(error => {
+            console.error('Error cargando estado del sistema:', error);
+        });
+}
+
+function updateChart(data) {
+    // Implementar gráfico con Chart.js
+    const ctx = document.getElementById('searchesChart').getContext('2d');
+    
+    // Datos de ejemplo para el gráfico
+    const chartData = {
+        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+        datasets: [{
+            label: 'Búsquedas',
+            data: [12, 19, 3, 5, 2, 3, 8],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1
+        }]
+    };
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

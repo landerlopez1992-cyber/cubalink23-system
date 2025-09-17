@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.app_name }} - Gestión de Usuarios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin-common.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-3">
+                <div class="text-center mb-4">
+                    <img src="/static/img/company-logo.svg" alt="Cubalink23 Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4 class="text-white">{{ config.app_name }}</h4>
+                    <small class="text-white-50">Panel de Administración</small>
+                </div>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="/admin/">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a class="nav-link active" href="/admin/users">
+                        <i class="fas fa-users me-2"></i> Usuarios
+                    </a>
+                    <a class="nav-link" href="/admin/products">
+                        <i class="fas fa-box me-2"></i> Productos
+                    </a>
+                    <a class="nav-link" href="/admin/orders">
+                        <i class="fas fa-shopping-cart me-2"></i> Órdenes
+                    </a>
+                    <a class="nav-link" href="/admin/flights">
+                        <i class="fas fa-plane me-2"></i> Vuelos
+                    </a>
+                    <a class="nav-link" href="/admin/system">
+                        <i class="fas fa-cog me-2"></i> Sistema
+                    </a>
+                    <a class="nav-link" href="/admin/vendors">
+                        <i class="fas fa-store me-2"></i> Vendedores
+                    </a>
+                    <a class="nav-link" href="/admin/drivers">
+                        <i class="fas fa-motorcycle me-2"></i> Repartidores
+                    </a>
+                    <a class="nav-link" href="/admin/vehicles">
+                        <i class="fas fa-car me-2"></i> Renta Car
+                    </a>
+                    <a class="nav-link" href="/admin/support-chat">
+                        <i class="fas fa-headset me-2"></i> Chat de Soporte
+                    </a>
+                    <a class="nav-link" href="/admin/alerts">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Alertas
+                    </a>
+                    <a class="nav-link" href="/admin/wallet">
+                        <i class="fas fa-wallet me-2"></i> Billetera
+                    </a>
+                    <a class="nav-link" href="/admin/payment-methods">
+                        <i class="fas fa-credit-card me-2"></i> Métodos de Pago
+                    </a>
+                    <a class="nav-link" href="/admin/payroll">
+                        <i class="fas fa-money-bill-wave me-2"></i> Nómina
+                    </a>
+                    <a class="nav-link mt-4" href="/auth/logout">
+                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-users"></i> Gestión de Usuarios</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshUsers()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn btn-success" onclick="showAddUserModal()">
+                            <i class="fas fa-plus"></i> Agregar Usuario
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                                <h3 id="total-users">-</h3>
+                                <p class="mb-0">Usuarios Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-check fa-2x text-success mb-2"></i>
+                                <h3 id="active-users">-</h3>
+                                <p class="mb-0">Usuarios Activos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-plus fa-2x text-info mb-2"></i>
+                                <h3 id="new-users">-</h3>
+                                <p class="mb-0">Nuevos este Mes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-slash fa-2x text-warning mb-2"></i>
+                                <h3 id="blocked-users">-</h3>
+                                <p class="mb-0">Usuarios Bloqueados</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Table -->
+                <div class="card card-stats">
+                    <div class="card-header">
+                        <h5><i class="fas fa-list"></i> Lista de Usuarios</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Email</th>
+                                        <th>Nombre</th>
+                                        <th>Saldo</th>
+                                        <th>Fecha Registro</th>
+                                        <th>Última Actividad</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table">
+                                    <tr>
+                                        <td>1</td>
+                                        <td>usuario@ejemplo.com</td>
+                                        <td>Juan Pérez</td>
+                                        <td>$150.00</td>
+                                        <td>2024-01-15</td>
+                                        <td>2024-01-15 14:30</td>
+                                        <td><span class="badge bg-success">Activo</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary" onclick="viewUserDetails(1)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-info" onclick="viewUserHistory(1)">
+                                                    <i class="fas fa-history"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-warning" onclick="editUser(1)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" name="phone">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rol</label>
+                            <select class="form-select" name="role">
+                                <option value="user">Usuario</option>
+                                <option value="vendor">Vendedor</option>
+                                <option value="driver">Repartidor</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="addUser()">Agregar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User History Modal -->
+    <div class="modal fade" id="userHistoryModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-history me-2"></i>
+                        Historial Completo del Usuario
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="historyTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="transfers-tab" data-bs-toggle="tab" data-bs-target="#transfers" type="button" role="tab">
+                                <i class="fas fa-exchange-alt me-1"></i> Transferencias
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat" type="button" role="tab">
+                                <i class="fas fa-comments me-1"></i> Chat
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="purchases-tab" data-bs-toggle="tab" data-bs-target="#purchases" type="button" role="tab">
+                                <i class="fas fa-shopping-cart me-1"></i> Compras
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="flights-tab" data-bs-toggle="tab" data-bs-target="#flights" type="button" role="tab">
+                                <i class="fas fa-plane me-1"></i> Vuelos
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="payments-tab" data-bs-toggle="tab" data-bs-target="#payments" type="button" role="tab">
+                                <i class="fas fa-credit-card me-1"></i> Pagos
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content mt-3" id="historyTabContent">
+                        <!-- Transferencias Tab -->
+                        <div class="tab-pane fade show active" id="transfers" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Tipo</th>
+                                            <th>Destinatario</th>
+                                            <th>Monto</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2024-01-15 10:30</td>
+                                            <td>Enviado</td>
+                                            <td>maria@ejemplo.com</td>
+                                            <td>$50.00</td>
+                                            <td><span class="badge bg-success">Completado</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Chat Tab -->
+                        <div class="tab-pane fade" id="chat" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Con</th>
+                                            <th>Tipo</th>
+                                            <th>Mensajes</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2024-01-15 14:20</td>
+                                            <td>Vendedor ABC</td>
+                                            <td>Soporte</td>
+                                            <td>5 mensajes</td>
+                                            <td><span class="badge bg-success">Resuelto</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Compras Tab -->
+                        <div class="tab-pane fade" id="purchases" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Producto</th>
+                                            <th>Vendedor</th>
+                                            <th>Monto</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2024-01-14 16:45</td>
+                                            <td>Producto Amazon</td>
+                                            <td>Amazon</td>
+                                            <td>$120.00</td>
+                                            <td><span class="badge bg-warning">En Tránsito</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Vuelos Tab -->
+                        <div class="tab-pane fade" id="flights" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Origen</th>
+                                            <th>Destino</th>
+                                            <th>Monto</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2024-01-13 09:15</td>
+                                            <td>Miami</td>
+                                            <td>La Habana</td>
+                                            <td>$450.00</td>
+                                            <td><span class="badge bg-success">Confirmado</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Pagos Tab -->
+                        <div class="tab-pane fade" id="payments" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Método</th>
+                                            <th>Monto</th>
+                                            <th>Estado</th>
+                                            <th>Foto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2024-01-15 11:20</td>
+                                            <td>Zelle</td>
+                                            <td>$75.00</td>
+                                            <td><span class="badge bg-warning">Pendiente</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info" onclick="viewPaymentPhoto(1)">
+                                                    <i class="fas fa-image"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsersData();
+        });
+
+        function loadUsersData() {
+            // Mostrar loading
+            document.getElementById('users-table').innerHTML = 
+                '<tr><td colspan="7" class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando usuarios...</td></tr>';
+            
+            // Obtener usuarios desde la API
+            fetch('/admin/api/users')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Datos recibidos:', data);
+                    
+                    const users = Array.isArray(data) ? data : [];
+                    
+                    // Actualizar estadísticas
+                    document.getElementById('total-users').textContent = users.length;
+                    document.getElementById('active-users').textContent = users.filter(u => !u.blocked).length;
+                    document.getElementById('new-users').textContent = users.filter(u => {
+                        const created = new Date(u.created_at);
+                        const now = new Date();
+                        const diffDays = (now - created) / (1000 * 60 * 60 * 24);
+                        return diffDays <= 7;
+                    }).length;
+                    document.getElementById('blocked-users').textContent = users.filter(u => u.blocked).length;
+                    
+                    // Actualizar tabla
+                    if (users.length === 0) {
+                        document.getElementById('users-table').innerHTML = 
+                            '<tr><td colspan="7" class="text-center">No hay usuarios registrados</td></tr>';
+                    } else {
+                        const tableBody = document.getElementById('users-table');
+                        tableBody.innerHTML = users.map(user => `
+                            <tr>
+                                <td>${user.name || 'N/A'}</td>
+                                <td>${user.email || 'N/A'}</td>
+                                <td>${user.user_id || 'N/A'}</td>
+                                <td>${user.searches || 0}</td>
+                                <td>${formatDate(user.last_seen)}</td>
+                                <td>
+                                    <span class="badge ${user.blocked ? 'bg-danger' : 'bg-success'}">
+                                        ${user.blocked ? 'Bloqueado' : 'Activo'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-info" onclick="viewUserDetails('${user.id}')" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" onclick="editUser('${user.id}')" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm ${user.blocked ? 'btn-success' : 'btn-danger'}" 
+                                                onclick="toggleUserStatus('${user.id}', ${!user.blocked})" 
+                                                title="${user.blocked ? 'Desbloquear' : 'Bloquear'}">
+                                            <i class="fas ${user.blocked ? 'fa-unlock' : 'fa-lock'}"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-secondary" onclick="viewUserHistory('${user.id}')" title="Historial">
+                                            <i class="fas fa-history"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('users-table').innerHTML = 
+                        '<tr><td colspan="7" class="text-center text-danger">Error al cargar usuarios: ' + error.message + '</td></tr>';
+                });
+        }
+
+        function refreshUsers() {
+            loadUsersData();
+        }
+
+        function showAddUserModal() {
+            new bootstrap.Modal(document.getElementById('addUserModal')).show();
+        }
+
+        function addUser() {
+            const form = document.getElementById('addUserForm');
+            const formData = new FormData(form);
+            
+            const userData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                user_id: formData.get('user_id'),
+                searches: parseInt(formData.get('searches') || '0'),
+                blocked: formData.get('blocked') === 'on'
+            };
+            
+            fetch('/admin/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Usuario agregado correctamente');
+                    bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                    loadUsersData();
+                    form.reset();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al agregar usuario');
+            });
+        }
+
+        function toggleUserStatus(userId, blocked) {
+            const action = blocked ? 'bloquear' : 'desbloquear';
+            if (!confirm(`¿Estás seguro de que quieres ${action} este usuario?`)) {
+                return;
+            }
+            
+            fetch(`/admin/api/users/${userId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ blocked: blocked })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Usuario ${action}do correctamente`);
+                    loadUsersData();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al actualizar estado del usuario');
+            });
+        }
+
+        function viewUserDetails(userId) {
+            fetch(`/admin/api/users/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success === false) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    
+                    const user = data;
+                    alert(`Detalles del usuario:\n\nNombre: ${user.name}\nEmail: ${user.email}\nID: ${user.user_id}\nBúsquedas: ${user.searches}\nÚltima actividad: ${formatDate(user.last_seen)}\nEstado: ${user.blocked ? 'Bloqueado' : 'Activo'}`);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al obtener detalles del usuario');
+                });
+        }
+
+        function viewUserHistory(userId) {
+            // Mostrar modal de historial completo
+            new bootstrap.Modal(document.getElementById('userHistoryModal')).show();
+        }
+
+        function editUser(userId) {
+            // Implementar edición de usuario
+            alert('Función de edición en desarrollo');
+        }
+
+        function viewPaymentPhoto(paymentId) {
+            // Implementar vista de foto de pago Zelle
+            alert('Ver foto de transacción Zelle ' + paymentId);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleString('es-ES');
+            } catch (e) {
+                return 'N/A';
+            }
+        }
+    </script>
+</body>
+</html>

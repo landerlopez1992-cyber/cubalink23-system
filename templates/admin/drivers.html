@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.app_name }} - Gestión de Repartidores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin-common.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-3">
+                <div class="text-center mb-4">
+                    <img src="/static/img/company-logo.svg" alt="Cubalink23 Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4 class="text-white">{{ config.app_name }}</h4>
+                    <small class="text-white-50">Panel de Administración</small>
+                </div>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="/admin/">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="/admin/users">
+                        <i class="fas fa-users me-2"></i> Usuarios
+                    </a>
+                    <a class="nav-link" href="/admin/products">
+                        <i class="fas fa-box me-2"></i> Productos
+                    </a>
+                    <a class="nav-link" href="/admin/orders">
+                        <i class="fas fa-shopping-cart me-2"></i> Órdenes
+                    </a>
+                    <a class="nav-link" href="/admin/flights">
+                        <i class="fas fa-plane me-2"></i> Vuelos
+                    </a>
+                    <a class="nav-link" href="/admin/system">
+                        <i class="fas fa-cog me-2"></i> Sistema
+                    </a>
+                    <a class="nav-link" href="/admin/vendors">
+                        <i class="fas fa-store me-2"></i> Vendedores
+                    </a>
+                    <a class="nav-link active" href="/admin/drivers">
+                        <i class="fas fa-motorcycle me-2"></i> Repartidores
+                    </a>
+                    <a class="nav-link" href="/admin/vehicles">
+                        <i class="fas fa-car me-2"></i> Renta Car
+                    </a>
+                    <a class="nav-link" href="/admin/support-chat">
+                        <i class="fas fa-headset me-2"></i> Chat de Soporte
+                    </a>
+                    <a class="nav-link" href="/admin/alerts">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Alertas
+                    </a>
+                    <a class="nav-link" href="/admin/wallet">
+                        <i class="fas fa-wallet me-2"></i> Billetera
+                    </a>
+                    <a class="nav-link" href="/admin/payment-methods">
+                        <i class="fas fa-credit-card me-2"></i> Métodos de Pago
+                    </a>
+                    <a class="nav-link" href="/admin/payroll">
+                        <i class="fas fa-money-bill-wave me-2"></i> Nómina
+                    </a>
+                    <a class="nav-link mt-4" href="/auth/logout">
+                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2><i class="fas fa-motorcycle"></i> Gestión de Repartidores</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshDrivers()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn btn-success" onclick="showAddDriverModal()">
+                            <i class="fas fa-plus"></i> Agregar Repartidor
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-motorcycle fa-2x text-primary mb-2"></i>
+                                <h3 id="total-drivers">-</h3>
+                                <p class="mb-0">Repartidores Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                                <h3 id="pending-approvals">-</h3>
+                                <p class="mb-0">Pendientes de Aprobación</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                <h3 id="active-drivers">-</h3>
+                                <p class="mb-0">Repartidores Activos</p>
+                            </div>
+                        </div>
+                    </div>
+                        <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-dollar-sign fa-2x text-info mb-2"></i>
+                                <h3 id="total-earnings">-</h3>
+                                <p class="mb-0">Ganancias Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="card card-stats mb-4">
+                    <div class="card-header">
+                        <h5 class="text-white"><i class="fas fa-bell text-white"></i> Configuración de Notificaciones con Sonido</h5>
+                    </div>
+                                <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="alert alert-info" style="background-color: #0f3460; border-color: #0f3460;">
+                                    <h6 class="text-white"><i class="fas fa-volume-up"></i> Notificaciones con Sonido</h6>
+                                    <p class="text-white mb-2">Los repartidores reciben notificaciones con sonido para:</p>
+                                    <ul class="text-white">
+                                        <li>Pedidos pendientes</li>
+                                        <li>Pedidos atrasados</li>
+                                        <li>Mensajes del administrador</li>
+                                        <li>Alertas del sistema</li>
+                                        <li>Recordatorios de entrega</li>
+                                    </ul>
+                                        </div>
+                                    </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-warning" style="background-color: #0f3460; border-color: #0f3460;">
+                                    <h6 class="text-white"><i class="fas fa-phone"></i> Configuración de Permisos</h6>
+                                    <p class="text-white mb-2">Permisos requeridos en la app móvil:</p>
+                                    <ul class="text-white">
+                                        <li>Acceso a tonos del teléfono</li>
+                                        <li>Reproducción de audio en segundo plano</li>
+                                        <li>Sobrescribir modo silencio</li>
+                                        <li>Notificaciones push</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button class="btn btn-success" onclick="testNotificationSound()">
+                                    <i class="fas fa-play"></i> Probar Sonido de Notificación
+                                </button>
+                                <button class="btn btn-primary" onclick="sendTestNotification()">
+                                    <i class="fas fa-paper-plane"></i> Enviar Notificación de Prueba
+                                </button>
+                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+
+                <!-- Tabs -->
+                <ul class="nav nav-tabs mb-4" id="driverTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="all-drivers-tab" data-bs-toggle="tab" data-bs-target="#all-drivers" type="button" role="tab">
+                            <i class="fas fa-list"></i> Todos los Repartidores
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                            <i class="fas fa-clock"></i> Pendientes de Aprobación
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="deliveries-tab" data-bs-toggle="tab" data-bs-target="#deliveries" type="button" role="tab">
+                            <i class="fas fa-shipping-fast"></i> Entregas
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="earnings-tab" data-bs-toggle="tab" data-bs-target="#earnings" type="button" role="tab">
+                            <i class="fas fa-money-bill-wave"></i> Ganancias
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="driverTabContent">
+                    <!-- All Drivers Tab -->
+                    <div class="tab-pane fade show active" id="all-drivers" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-list"></i> Lista de Repartidores</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Repartidor</th>
+                                                <th>Vehículo</th>
+                                                <th>Entregas</th>
+                                                <th>Ganancias</th>
+                                                <th>Estado</th>
+                                                <th>Método Pago</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="drivers-table">
+                                            <tr>
+                                                <td colspan="8" class="text-center">
+                                                    <div class="spinner-border" role="status">
+                                                        <span class="visually-hidden">Cargando...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                                        </div>
+
+                    <!-- Pending Approvals Tab -->
+                    <div class="tab-pane fade" id="pending" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-clock"></i> Repartidores Pendientes de Aprobación</h5>
+                                        </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Repartidor</th>
+                                                <th>Vehículo</th>
+                                                <th>Documentos</th>
+                                                <th>Fecha Solicitud</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="pending-drivers-table">
+                                            <tr>
+                                                <td colspan="6" class="text-center">No hay repartidores pendientes de aprobación</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deliveries Tab -->
+                    <div class="tab-pane fade" id="deliveries" role="tabpanel">
+                        <div class="alert alert-info mb-3">
+                            <h6><i class="fas fa-info-circle me-2"></i>Sistema de Estados de Entrega</h6>
+                            <p class="mb-0">Los repartidores pueden gestionar el estado de las órdenes: <strong>Aceptar Orden</strong> → <strong>Orden en Tránsito</strong> → <strong>Orden en Reparto</strong> → <strong>Orden Entregada</strong> (con foto)</p>
+                                        </div>
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-shipping-fast"></i> Gestión de Entregas</h5>
+                                        </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Entrega</th>
+                                                <th>Repartidor</th>
+                                                <th>Cliente</th>
+                                                <th>Dirección</th>
+                                                <th>Estado</th>
+                                                <th>Chat</th>
+                                                <th>Ganancia</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="deliveries-table">
+                                            <tr>
+                                                <td>#ORD-001</td>
+                                                <td>Carlos López</td>
+                                                <td>Juan Pérez</td>
+                                                <td>La Habana, Cuba</td>
+                                                <td><span class="badge bg-warning">En Tránsito</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info" onclick="openChat('driver', 1)">
+                                                        <i class="fas fa-comments"></i>
+                                                    </button>
+                                                </td>
+                                                <td>$5.00</td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-sm btn-success">En Reparto</button>
+                                                        <button class="btn btn-sm btn-primary">Entregada</button>
+                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Earnings Tab -->
+                    <div class="tab-pane fade" id="earnings" role="tabpanel">
+                        <div class="card card-stats">
+                        <div class="card-header">
+                                <h5><i class="fas fa-money-bill-wave"></i> Gestión de Ganancias</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Repartidor</th>
+                                                <th>Entregas del Mes</th>
+                                                <th>Ganancia por Entrega</th>
+                                                <th>Ganancia Total</th>
+                                                <th>Estado Pago</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                        <tbody id="earnings-table">
+                                            <tr>
+                                                <td colspan="6" class="text-center">No hay ganancias registradas</td>
+                                            </tr>
+                                    </tbody>
+                                </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Driver Modal -->
+    <div class="modal fade" id="addDriverModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Repartidor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addDriverForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre Completo</label>
+                                    <input type="text" class="form-control" name="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" name="phone" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo de Vehículo</label>
+                                    <select class="form-select" name="vehicle_type" required>
+                                        <option value="">Seleccionar vehículo</option>
+                                        <option value="motorcycle">Motocicleta</option>
+                                        <option value="bicycle">Bicicleta</option>
+                                        <option value="car">Automóvil</option>
+                                        <option value="scooter">Scooter</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Ganancia por Entrega</label>
+                                    <input type="number" class="form-control" name="delivery_fee" min="0" step="0.01" value="5.00">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Método de Pago</label>
+                                    <select class="form-select" name="payment_method">
+                                        <option value="cash">Efectivo (CASH)</option>
+                                        <option value="card">Tarjeta</option>
+                                        <option value="transfer">Transferencia</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Zona de Trabajo</label>
+                            <textarea class="form-control" name="work_zone" rows="2" placeholder="Ej: Centro de La Habana, Vedado, etc."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="addDriver()">Agregar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDriversData();
+        });
+
+        function loadDriversData() {
+            // Simular carga de datos
+            document.getElementById('total-drivers').textContent = '0';
+            document.getElementById('pending-approvals').textContent = '0';
+            document.getElementById('active-drivers').textContent = '0';
+            document.getElementById('total-earnings').textContent = '$0';
+            
+            // Simular tabla vacía
+            document.getElementById('drivers-table').innerHTML = 
+                '<tr><td colspan="8" class="text-center">No hay repartidores registrados</td></tr>';
+        }
+
+        function refreshDrivers() {
+            loadDriversData();
+        }
+
+        function showAddDriverModal() {
+            new bootstrap.Modal(document.getElementById('addDriverModal')).show();
+        }
+
+        function addDriver() {
+            const form = document.getElementById('addDriverForm');
+            const formData = new FormData(form);
+            
+            // Aquí iría la lógica para agregar repartidor
+            alert('Repartidor agregado correctamente');
+            
+            // Cerrar modal y recargar datos
+            bootstrap.Modal.getInstance(document.getElementById('addDriverModal')).hide();
+            loadDriversData();
+        }
+
+        function approveDriver(driverId) {
+            if (confirm('¿Estás seguro de que quieres aprobar este repartidor?')) {
+                // Aquí iría la lógica para aprobar repartidor
+                alert('Repartidor aprobado correctamente');
+                loadDriversData();
+            }
+        }
+
+        function rejectDriver(driverId) {
+            if (confirm('¿Estás seguro de que quieres rechazar este repartidor?')) {
+                // Aquí iría la lógica para rechazar repartidor
+                alert('Repartidor rechazado');
+                loadDriversData();
+            }
+        }
+
+        function assignDelivery(driverId) {
+            // Aquí iría la lógica para asignar entrega
+            alert('Entrega asignada correctamente');
+        }
+
+        // Funciones para notificaciones con sonido
+        function testNotificationSound() {
+            // Simular sonido de notificación
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+            audio.play().catch(e => {
+                console.log('Audio playback failed:', e);
+                alert('Sonido de notificación reproducido (simulado)');
+            });
+            
+            // Mostrar notificación visual
+            showNotification('🔔 Sonido de Notificación', 'Se reprodujo el sonido de notificación para repartidores');
+        }
+
+        function sendTestNotification() {
+            // Simular envío de notificación push con sonido
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('📱 Notificación de Prueba', {
+                    body: 'Esta es una notificación de prueba para repartidores con sonido',
+                    icon: '/static/img/notification-icon.png',
+                    tag: 'test-notification'
+                });
+            }
+            
+            showNotification('📤 Notificación Enviada', 'Se envió notificación de prueba a todos los repartidores activos');
+        }
+
+        function showNotification(title, message) {
+            // Crear notificación toast
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = `
+                <div style="position: fixed; top: 20px; right: 20px; background: #0f3460; color: white; padding: 15px; border-radius: 5px; z-index: 9999; max-width: 300px;">
+                    <strong>${title}</strong><br>
+                    ${message}
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            // Remover después de 3 segundos
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

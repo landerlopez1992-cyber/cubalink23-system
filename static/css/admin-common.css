@@ -1,0 +1,366 @@
+/* Cubalink23 Admin Panel - Estilos Comunes */
+body {
+    background-color: #1a1a2e;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Mejoras para el layout del formulario */
+.modal-xl {
+    max-width: 95%;
+}
+
+.modal-body {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #e0e0e0;
+    margin-bottom: 5px;
+}
+
+.form-control, .form-select {
+    background-color: #16213e;
+    border: 1px solid #0f3460;
+    color: #e0e0e0;
+    border-radius: 8px;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: #16213e;
+    border-color: #007bff;
+    color: #e0e0e0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-control::placeholder {
+    color: #6c757d;
+}
+
+/* Mejoras para las etiquetas */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.5em 0.75em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.badge:hover {
+    transform: scale(1.05);
+    opacity: 0.8;
+}
+
+/* Mejoras para los checkboxes */
+.form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.form-check-label {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Mejoras para los botones */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Mejoras para la tabla */
+.table {
+    color: #e0e0e0;
+}
+
+.table th {
+    background-color: #16213e;
+    border-color: #0f3460;
+    color: #e0e0e0;
+    font-weight: 600;
+}
+
+.table td {
+    border-color: #0f3460;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(15, 52, 96, 0.3);
+}
+
+/* Mejoras para el preview de imagen */
+#imagePreview img {
+    transition: all 0.3s ease;
+}
+
+#imagePreview img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar {
+    min-height: 100vh;
+    background-color: #16213e;
+    color: #e0e0e0;
+    padding-top: 20px;
+}
+
+.sidebar a {
+    color: #e0e0e0;
+    text-decoration: none;
+    padding: 10px 15px;
+    display: block;
+    border-radius: 10px;
+    margin: 5px 0;
+    transition: all 0.3s ease;
+}
+
+.sidebar a:hover, .sidebar a.active {
+    background-color: #0f3460;
+    color: white;
+}
+
+.content {
+    padding: 20px;
+}
+
+.card, .card-stats {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #0f3460;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #16213e;
+    border-bottom: 1px solid #1a1a2e;
+    color: #e0e0e0;
+}
+
+.nav-link {
+    color: #e0e0e0;
+    border-radius: 10px;
+    margin: 5px 0;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    background-color: #0f3460;
+    color: white;
+}
+
+.table {
+    color: #e0e0e0;
+    background-color: transparent;
+}
+
+.table th {
+    background-color: #16213e;
+    border-color: #1a1a2e;
+    color: #e0e0e0;
+}
+
+.table td {
+    background-color: #0f3460;
+    border-color: #1a1a2e;
+    color: #e0e0e0;
+}
+
+.btn-primary {
+    background-color: #e94560;
+    border-color: #e94560;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #b83f54;
+    border-color: #b83f54;
+    color: white;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-primary {
+    color: #e94560;
+    border-color: #e94560;
+}
+
+.btn-outline-primary:hover {
+    background-color: #e94560;
+    border-color: #e94560;
+    color: white;
+}
+
+.form-control {
+    background-color: #1a1a2e;
+    border-color: #16213e;
+    color: #e0e0e0;
+}
+
+.form-control:focus {
+    background-color: #1a1a2e;
+    border-color: #e94560;
+    color: #e0e0e0;
+    box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25);
+}
+
+.form-select {
+    background-color: #1a1a2e;
+    border-color: #16213e;
+    color: #e0e0e0;
+}
+
+.form-select:focus {
+    background-color: #1a1a2e;
+    border-color: #e94560;
+    color: #e0e0e0;
+    box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25);
+}
+
+.nav-tabs {
+    border-bottom: 1px solid #1a1a2e;
+}
+
+.nav-tabs .nav-link {
+    color: #e0e0e0;
+    background-color: #0f3460;
+    border-color: #1a1a2e;
+    border-radius: 10px 10px 0 0;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #e94560;
+    border-color: #e94560;
+    color: white;
+}
+
+.tab-content {
+    background-color: #0f3460;
+    border: 1px solid #1a1a2e;
+    border-top: none;
+    border-radius: 0 0 15px 15px;
+    padding: 20px;
+}
+
+textarea.form-control {
+    background-color: #1a1a2e;
+    border-color: #16213e;
+    color: #e0e0e0;
+}
+
+.modal-content {
+    background-color: #0f3460;
+    color: #e0e0e0;
+    border: 1px solid #1a1a2e;
+}
+
+.modal-header {
+    background-color: #16213e;
+    border-bottom: 1px solid #1a1a2e;
+}
+
+.modal-footer {
+    background-color: #16213e;
+    border-top: 1px solid #1a1a2e;
+}
+
+.list-group-item {
+    background-color: #0f3460;
+    border-color: #1a1a2e;
+    color: #e0e0e0;
+}
+
+.list-group-item:hover {
+    background-color: #16213e;
+}
+
+.badge {
+    background-color: #e94560;
+    color: white;
+}
+
+.alert {
+    border: none;
+    border-radius: 10px;
+}
+
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border-left: 4px solid #28a745;
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border-left: 4px solid #dc3545;
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border-left: 4px solid #ffc107;
+}
+
+.alert-info {
+    background-color: rgba(23, 162, 184, 0.2);
+    color: #17a2b8;
+    border-left: 4px solid #17a2b8;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1a2e;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #0f3460;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #e94560;
+}
+
+/* Animaciones suaves */
+* {
+    transition: all 0.3s ease;
+}
+
+/* Estados de carga */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.spinner-border {
+    color: #e94560;
+}

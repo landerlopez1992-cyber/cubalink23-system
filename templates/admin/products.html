@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.app_name }} - Gestión de Productos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin-common.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-3">
+                <div class="text-center mb-4">
+                    <img src="/static/img/company-logo.svg" alt="Cubalink23 Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4 class="text-white">{{ config.app_name }}</h4>
+                    <small class="text-white-50">Panel de Administración</small>
+                </div>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="/admin/">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="/admin/users">
+                        <i class="fas fa-users me-2"></i> Usuarios
+                    </a>
+                    <a class="nav-link active" href="/admin/products">
+                        <i class="fas fa-box me-2"></i> Productos
+                    </a>
+                    <a class="nav-link" href="/admin/collections">
+                        <i class="fas fa-layer-group me-2"></i> Colecciones
+                    </a>
+                    <a class="nav-link" href="/admin/orders">
+                        <i class="fas fa-shopping-cart me-2"></i> Órdenes
+                    </a>
+                    <a class="nav-link" href="/admin/flights">
+                        <i class="fas fa-plane me-2"></i> Vuelos
+                    </a>
+                    <a class="nav-link" href="/admin/system">
+                        <i class="fas fa-cog me-2"></i> Sistema
+                    </a>
+                    <a class="nav-link" href="/admin/vendors">
+                        <i class="fas fa-store me-2"></i> Vendedores
+                    </a>
+                    <a class="nav-link" href="/admin/drivers">
+                        <i class="fas fa-motorcycle me-2"></i> Repartidores
+                    </a>
+                    <a class="nav-link" href="/admin/vehicles">
+                        <i class="fas fa-car me-2"></i> Renta Car
+                    </a>
+                    <a class="nav-link" href="/admin/support-chat">
+                        <i class="fas fa-headset me-2"></i> Chat de Soporte
+                    </a>
+                    <a class="nav-link" href="/admin/alerts">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Alertas
+                    </a>
+                    <a class="nav-link" href="/admin/wallet">
+                        <i class="fas fa-wallet me-2"></i> Billetera
+                    </a>
+                    <a class="nav-link" href="/admin/payment-methods">
+                        <i class="fas fa-credit-card me-2"></i> Métodos de Pago
+                    </a>
+                    <a class="nav-link" href="/admin/payroll">
+                        <i class="fas fa-money-bill-wave me-2"></i> Nómina
+                    </a>
+                    <a class="nav-link mt-4" href="/auth/logout">
+                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-box"></i> Gestión de Productos</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshProducts()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn btn-success" onclick="showAddProductModal()">
+                            <i class="fas fa-plus"></i> Agregar Producto
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchProducts" placeholder="Buscar productos..." onkeyup="filterProducts()">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterCategory" onchange="filterProducts()">
+                            <option value="">Todas las categorías</option>
+                            <option value="alimentos">Alimentos</option>
+                            <option value="materiales">Materiales</option>
+                            <option value="ferreteria">Ferretería</option>
+                            <option value="farmacia">Farmacia</option>
+                            <option value="electronicos">Electrónicos</option>
+                            <option value="ropa">Ropa</option>
+                            <option value="servicios">Servicios</option>
+                            <option value="motos">Motos</option>
+                            <option value="amazon">Amazon</option>
+                            <option value="walmart">Walmart</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" id="filterStatus" onchange="filterProducts()">
+                            <option value="">Todos los estados</option>
+                            <option value="active">Activos</option>
+                            <option value="inactive">Inactivos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" id="filterOwner" onchange="filterProducts()">
+                            <option value="">Todos los propietarios</option>
+                            <option value="admin">Tienda/Admin</option>
+                            <option value="vendor">Vendedores</option>
+                            <option value="amazon">Amazon</option>
+                            <option value="walmart">Walmart</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1">
+                        <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-box fa-2x text-primary mb-2"></i>
+                                <h3 id="total-products">-</h3>
+                                <p class="mb-0">Productos Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-tags fa-2x text-success mb-2"></i>
+                                <h3 id="total-categories">-</h3>
+                                <p class="mb-0">Categorías</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-dollar-sign fa-2x text-info mb-2"></i>
+                                <h3 id="total-sales">-</h3>
+                                <p class="mb-0">Ventas Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                                <h3 id="avg-rating">-</h3>
+                                <p class="mb-0">Rating Promedio</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="card card-stats">
+                    <div class="card-header">
+                        <h5><i class="fas fa-list"></i> Lista de Productos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Imagen</th>
+                                        <th>Nombre</th>
+                                        <th>Categoría</th>
+                                        <th>Subcategoría</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th>Peso</th>
+                                        <th>Envío</th>
+                                        <th>Etiquetas</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-table">
+                                    <tr>
+                                        <td colspan="11" class="text-center">
+                                            <div class="spinner-border" role="status">
+                                                <span class="visually-hidden">Cargando...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plus"></i> Agregar Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProductForm">
+                        <!-- Primera fila: Información básica -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Nombre del Producto</label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Categoría</label>
+                                <select class="form-select" name="category" id="categorySelect" required onchange="loadSubcategories()">
+                                    <option value="">Seleccionar categoría</option>
+                                    <option value="alimentos">Alimentos</option>
+                                    <option value="materiales">Materiales</option>
+                                    <option value="ferreteria">Ferretería</option>
+                                    <option value="farmacia">Farmacia</option>
+                                    <option value="electronicos">Electrónicos</option>
+                                    <option value="ropa">Ropa</option>
+                                    <option value="hogar">Hogar</option>
+                                    <option value="deportes">Deportes</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Subcategoría</label>
+                                <select class="form-select" name="subcategory" id="subcategorySelect" required>
+                                    <option value="">Primero selecciona una categoría</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Precio ($)</label>
+                                <input type="number" class="form-control" name="price" step="0.01" required>
+                            </div>
+                        </div>
+
+                        <!-- Segunda fila: Stock, peso y envío -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Stock</label>
+                                <input type="number" class="form-control" name="stock" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Peso (kg)</label>
+                                <input type="number" class="form-control" name="weight" step="0.01" placeholder="Opcional">
+                                <small class="text-muted">Para cálculo de envío</small>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Envío Adicional ($)</label>
+                                <input type="number" class="form-control" name="shipping_cost" step="0.01" placeholder="0.00">
+                                <small class="text-muted">Preparación y manejo</small>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Propietario</label>
+                                <select class="form-select" name="vendor_id" id="vendorSelect" required>
+                                    <option value="admin">Tienda/Administrador</option>
+                                    <option value="amazon">Amazon</option>
+                                    <option value="walmart">Walmart</option>
+                                    <option value="vendor_1">Vendedor 1</option>
+                                    <option value="vendor_2">Vendedor 2</option>
+                                    <option value="vendor_3">Vendedor 3</option>
+                                </select>
+                                <small class="text-muted">Quién es el propietario del producto</small>
+                            </div>
+                        </div>
+
+                        <!-- Tercera fila: Imagen -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Imagen del Producto</label>
+                                <input type="file" class="form-control" name="image" id="productImage" accept="image/*" onchange="previewImage(this)">
+                            </div>
+                            <div class="col-md-6">
+                                <div id="imagePreview" style="display: none;">
+                                    <img id="previewImg" style="max-width: 200px; max-height: 150px; border-radius: 5px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tercera fila: Descripción -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" name="description" rows="2" placeholder="Descripción del producto..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Cuarta fila: Métodos de envío -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Métodos de Envío</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="shipping_methods" value="express" id="express">
+                                            <label class="form-check-label" for="express">
+                                                <i class="fas fa-shipping-fast text-success"></i> Express (3-8 días)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="shipping_methods" value="maritime" id="maritime">
+                                            <label class="form-check-label" for="maritime">
+                                                <i class="fas fa-ship text-primary"></i> Marítimo (4-6 semanas)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="imagePreview" class="mt-2" style="display: none;">
+                                    <img id="previewImg" src="" alt="Preview" style="max-width: 150px; max-height: 100px; border-radius: 5px; border: 2px solid #dee2e6;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quinta fila: Etiquetas -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">Etiquetas del Producto</label>
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="tags" value="NUEVO" id="tag_nuevo">
+                                            <label class="form-check-label badge bg-success w-100" for="tag_nuevo">
+                                                NUEVO
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="tags" value="12% OFF" id="tag_off">
+                                            <label class="form-check-label badge bg-danger w-100" for="tag_off">
+                                                12% OFF
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="tags" value="CALIENTE" id="tag_caliente">
+                                            <label class="form-check-label badge bg-warning w-100" for="tag_caliente">
+                                                CALIENTE
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="tags" value="LIMITADO" id="tag_limitado">
+                                            <label class="form-check-label badge bg-info w-100" for="tag_limitado">
+                                                LIMITADO
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="tags" value="ENVÍO GRATIS" id="tag_envio_gratis">
+                                            <label class="form-check-label badge bg-primary w-100" for="tag_envio_gratis">
+                                                ENVÍO GRATIS
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="tags" value="MEJOR VENDIDO" id="tag_bestseller">
+                                            <label class="form-check-label badge bg-dark w-100" for="tag_bestseller">
+                                                MEJOR VENDIDO
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sexta fila: Etiqueta personalizada -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Etiqueta Personalizada</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="customTag" placeholder="Ej: 50% OFF, EXCLUSIVO">
+                                    <button type="button" class="btn btn-outline-primary" onclick="addCustomTag()">
+                                        <i class="fas fa-plus"></i> Agregar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="customTagsContainer" class="mt-4"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="addProduct()">
+                        <i class="fas fa-save"></i> Agregar Producto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title">Editar Producto</h5>
+                        <div id="editProductOwnerInfo" class="mt-1">
+                            <!-- Información del propietario se llenará dinámicamente -->
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProductForm">
+                        <input type="hidden" id="editProductId" name="id">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre del Producto</label>
+                                    <input type="text" class="form-control" name="name" id="editName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Categoría</label>
+                                    <select class="form-select" name="category" id="editCategorySelect" required onchange="loadEditSubcategories()">
+                                        <option value="">Seleccionar categoría</option>
+                                        <option value="alimentos">Alimentos</option>
+                                        <option value="materiales">Materiales</option>
+                                        <option value="ferreteria">Ferretería</option>
+                                        <option value="farmacia">Farmacia</option>
+                                        <option value="electronicos">Electrónicos</option>
+                                        <option value="ropa">Ropa</option>
+                                        <option value="hogar">Hogar</option>
+                                        <option value="deportes">Deportes</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Subcategoría</label>
+                                    <select class="form-select" name="subcategory" id="editSubcategorySelect" required>
+                                        <option value="">Primero selecciona una categoría</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Precio</label>
+                                    <input type="number" class="form-control" name="price" id="editPrice" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Stock</label>
+                                    <input type="number" class="form-control" name="stock" id="editStock" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Peso (kg)</label>
+                                    <input type="number" class="form-control" name="weight" id="editWeight" step="0.01" placeholder="Opcional">
+                                    <small class="text-muted">Peso del producto para cálculo de envío</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Precio de Envío Adicional</label>
+                                    <input type="number" class="form-control" name="shipping_cost" id="editShippingCost" step="0.01" placeholder="0.00">
+                                    <small class="text-muted">Costo adicional por preparación y manejo</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Descripción</label>
+                                    <textarea class="form-control" name="description" id="editDescription" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Métodos de Envío</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="shipping_methods" value="express" id="editExpress">
+                                        <label class="form-check-label" for="editExpress">
+                                            Envío Express (3 a 8 días)
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="shipping_methods" value="maritime" id="editMaritime">
+                                        <label class="form-check-label" for="editMaritime">
+                                            Envío Marítimo (4 a 6 semanas)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Etiquetas del Producto</label>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="tags" value="NUEVO" id="editTagNuevo">
+                                                <label class="form-check-label badge bg-success" for="editTagNuevo">
+                                                    NUEVO
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="tags" value="12% OFF" id="editTagOff">
+                                                <label class="form-check-label badge bg-danger" for="editTagOff">
+                                                    12% OFF
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="tags" value="CALIENTE" id="editTagCaliente">
+                                                <label class="form-check-label badge bg-warning" for="editTagCaliente">
+                                                    CALIENTE
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="tags" value="LIMITADO" id="editTagLimitado">
+                                                <label class="form-check-label badge bg-info" for="editTagLimitado">
+                                                    LIMITADO
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="tags" value="ENVÍO GRATIS" id="editTagEnvioGratis">
+                                                <label class="form-check-label badge bg-primary" for="editTagEnvioGratis">
+                                                    ENVÍO GRATIS
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="tags" value="MEJOR VENDIDO" id="editTagBestseller">
+                                                <label class="form-check-label badge bg-dark" for="editTagBestseller">
+                                                    MEJOR VENDIDO
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <label class="form-label">Etiqueta Personalizada</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="editCustomTag" placeholder="Ej: 50% OFF, EXCLUSIVO">
+                                            <button type="button" class="btn btn-outline-primary" onclick="addEditCustomTag()">
+                                                <i class="fas fa-plus"></i> Agregar
+                                            </button>
+                                        </div>
+                                        <div id="editCustomTagsContainer" class="mt-2"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Imagen del Producto</label>
+                                    <input type="file" class="form-control" name="image" id="editProductImage" accept="image/*" onchange="previewEditImage(this)">
+                                    <div id="editImagePreview" class="mt-2">
+                                        <img id="editPreviewImg" src="" alt="Preview" style="max-width: 200px; max-height: 150px; border-radius: 5px;">
+                                        <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removeEditImage()" style="display: none;">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="updateProduct()">Actualizar Producto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variables globales
+        let products = [];
+        let currentEditProduct = null;
+
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProductsData();
+        });
+
+        // Cargar productos desde Supabase
+        async function loadProductsData() {
+            try {
+                const response = await fetch('/admin/api/products');
+                const data = await response.json();
+                
+                if (data.success) {
+                    products = data.products;
+                    displayProducts(products);
+                    updateStats(data.products);
+                } else {
+                    console.error('Error cargando productos:', data.error);
+                    showError('Error cargando productos: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión al cargar productos');
+            }
+        }
+
+        // Función para generar badge de propietario
+        function getOwnerBadge(product) {
+            const ownerType = getProductOwnerType(product);
+            const ownerInfo = getProductOwnerInfo(product);
+            
+            let badgeClass = '';
+            let icon = '';
+            let tooltip = '';
+            
+            switch (ownerType) {
+                case 'admin':
+                    badgeClass = 'bg-danger';
+                    icon = 'fas fa-crown';
+                    tooltip = 'Producto de la Tienda/Administrador';
+                    break;
+                case 'vendor':
+                    badgeClass = 'bg-warning';
+                    icon = 'fas fa-store';
+                    tooltip = `Vendedor: ${ownerInfo.name}`;
+                    break;
+                case 'amazon':
+                    badgeClass = 'bg-info';
+                    icon = 'fab fa-amazon';
+                    tooltip = 'Producto de Amazon';
+                    break;
+                case 'walmart':
+                    badgeClass = 'bg-success';
+                    icon = 'fas fa-shopping-cart';
+                    tooltip = 'Producto de Walmart';
+                    break;
+                default:
+                    badgeClass = 'bg-secondary';
+                    icon = 'fas fa-question';
+                    tooltip = 'Propietario no identificado';
+            }
+            
+            return `
+                <span class="badge ${badgeClass} position-relative" 
+                      data-bs-toggle="tooltip" 
+                      data-bs-placement="top" 
+                      title="${tooltip}">
+                    <i class="${icon}"></i>
+                </span>
+            `;
+        }
+        
+        // Determinar tipo de propietario del producto
+        function getProductOwnerType(product) {
+            // Si tiene vendor_id específico, es de un vendedor
+            if (product.vendor_id && product.vendor_id !== 'admin' && product.vendor_id !== 'system') {
+                return 'vendor';
+            }
+            
+            // Si la categoría es Amazon
+            if (product.category === 'amazon' || product.vendor_id === 'amazon') {
+                return 'amazon';
+            }
+            
+            // Si la categoría es Walmart
+            if (product.category === 'walmart' || product.vendor_id === 'walmart') {
+                return 'walmart';
+            }
+            
+            // Si no tiene vendor_id o es admin/system, es de la tienda
+            if (!product.vendor_id || product.vendor_id === 'admin' || product.vendor_id === 'system') {
+                return 'admin';
+            }
+            
+            return 'unknown';
+        }
+        
+        // Obtener información del propietario
+        function getProductOwnerInfo(product) {
+            const ownerType = getProductOwnerType(product);
+            
+            switch (ownerType) {
+                case 'vendor':
+                    return {
+                        name: product.vendor_name || 'Vendedor',
+                        id: product.vendor_id
+                    };
+                case 'amazon':
+                    return {
+                        name: 'amazon',
+                        id: 'amazon'
+                    };
+                case 'walmart':
+                    return {
+                        name: 'walmart',
+                        id: 'walmart'
+                    };
+                case 'admin':
+                    return {
+                        name: 'Tienda Cubalink23',
+                        id: 'admin'
+                    };
+                default:
+                    return {
+                        name: 'Desconocido',
+                        id: 'unknown'
+                    };
+            }
+        }
+        
+        // Mostrar información del propietario en el modal de edición
+        function displayProductOwnerInfo(product) {
+            const ownerType = getProductOwnerType(product);
+            const ownerInfo = getProductOwnerInfo(product);
+            
+            let badgeClass = '';
+            let icon = '';
+            let text = '';
+            
+            switch (ownerType) {
+                case 'admin':
+                    badgeClass = 'bg-danger';
+                    icon = 'fas fa-crown';
+                    text = 'Producto de la Tienda/Administrador';
+                    break;
+                case 'vendor':
+                    badgeClass = 'bg-warning';
+                    icon = 'fas fa-store';
+                    text = `Vendedor: ${ownerInfo.name}`;
+                    break;
+                case 'amazon':
+                    badgeClass = 'bg-info';
+                    icon = 'fab fa-amazon';
+                    text = 'Producto de Amazon';
+                    break;
+                case 'walmart':
+                    badgeClass = 'bg-success';
+                    icon = 'fas fa-shopping-cart';
+                    text = 'Producto de Walmart';
+                    break;
+                default:
+                    badgeClass = 'bg-secondary';
+                    icon = 'fas fa-question';
+                    text = 'Propietario no identificado';
+            }
+            
+            const ownerInfoHtml = `
+                <div class="d-flex align-items-center">
+                    <span class="badge ${badgeClass} me-2">
+                        <i class="${icon}"></i>
+                    </span>
+                    <small class="text-muted">${text}</small>
+                </div>
+            `;
+            
+            document.getElementById('editProductOwnerInfo').innerHTML = ownerInfoHtml;
+        }
+
+        // Mostrar productos en la tabla
+        function displayProducts(productsList) {
+            const tbody = document.getElementById('products-table');
+            
+            if (productsList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" class="text-center">No hay productos registrados</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = productsList.map(product => `
+                <tr>
+                    <td>
+                        ${product.image_url ? 
+                            `<img src="${product.image_url}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">` :
+                            `<div style="width: 50px; height: 50px; background: #f8f9fa; border-radius: 5px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-image text-muted"></i>
+                            </div>`
+                        }
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="me-2">
+                                ${getOwnerBadge(product)}
+                            </div>
+                            <div>
+                                <strong>${product.name}</strong>
+                                ${product.vendor_name ? `<br><small class="text-muted">${product.vendor_name}</small>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge bg-primary">${product.category || 'Sin categoría'}</span></td>
+                    <td><span class="badge bg-secondary">${product.subcategory || 'Sin subcategoría'}</span></td>
+                    <td>$${product.price}</td>
+                    <td>${product.stock}</td>
+                    <td>${product.weight ? product.weight + ' kg' : '-'}</td>
+                    <td>${product.shipping_cost ? '$' + product.shipping_cost : '-'}</td>
+                    <td>
+                        ${product.tags && product.tags.length > 0 ? 
+                            product.tags.map(tag => `<span class="badge bg-info me-1">${tag}</span>`).join('') : 
+                            '-'
+                        }
+                    </td>
+                    <td>
+                        <span class="badge ${product.is_active ? 'bg-success' : 'bg-danger'}">
+                            ${product.is_active ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="editProduct('${product.id}')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteProduct('${product.id}')" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Actualizar estadísticas
+        function updateStats(productsList) {
+            document.getElementById('total-products').textContent = productsList.length;
+            
+            const categories = [...new Set(productsList.map(p => p.category))];
+            document.getElementById('total-categories').textContent = categories.length;
+            
+            const totalSales = productsList.reduce((sum, p) => sum + (p.price * p.stock), 0);
+            document.getElementById('total-sales').textContent = `$${totalSales.toFixed(2)}`;
+            
+            document.getElementById('avg-rating').textContent = '4.5'; // Placeholder
+        }
+
+        // Cargar subcategorías dinámicamente
+        function loadSubcategories() {
+            const category = document.getElementById('categorySelect').value;
+            const subcategorySelect = document.getElementById('subcategorySelect');
+            
+            console.log('Cargando subcategorías para:', category);
+            
+            subcategorySelect.innerHTML = '<option value="">Seleccionar subcategoría</option>';
+            
+            if (category === 'alimentos') {
+                subcategorySelect.innerHTML += `
+                    <option value="Carnes">Carnes</option>
+                    <option value="Lácteos">Lácteos</option>
+                    <option value="Frutas & Verduras">Frutas & Verduras</option>
+                    <option value="Panadería">Panadería</option>
+                    <option value="Mariscos">Mariscos</option>
+                    <option value="Congelados">Congelados</option>
+                `;
+            } else if (category === 'materiales') {
+                subcategorySelect.innerHTML += `
+                    <option value="Construcción">Construcción</option>
+                    <option value="Pintura">Pintura</option>
+                    <option value="Madera">Madera</option>
+                    <option value="Metal">Metal</option>
+                `;
+            } else if (category === 'ferreteria') {
+                subcategorySelect.innerHTML += `
+                    <option value="Herramientas">Herramientas</option>
+                    <option value="Tornillos">Tornillos</option>
+                    <option value="Clavos">Clavos</option>
+                    <option value="Candados">Candados</option>
+                `;
+            } else if (category === 'farmacia') {
+                subcategorySelect.innerHTML += `
+                    <option value="Medicamentos">Medicamentos</option>
+                    <option value="Vitaminas">Vitaminas</option>
+                    <option value="Primeros Auxilios">Primeros Auxilios</option>
+                    <option value="Cuidado Personal">Cuidado Personal</option>
+                `;
+            } else if (category === 'electronicos') {
+                subcategorySelect.innerHTML += `
+                    <option value="Teléfonos">Teléfonos</option>
+                    <option value="Computadoras">Computadoras</option>
+                    <option value="Accesorios">Accesorios</option>
+                    <option value="Electrodomésticos">Electrodomésticos</option>
+                `;
+            } else if (category === 'ropa') {
+                subcategorySelect.innerHTML += `
+                    <option value="Hombre">Hombre</option>
+                    <option value="Mujer">Mujer</option>
+                    <option value="Niños">Niños</option>
+                    <option value="Accesorios">Accesorios</option>
+                `;
+            } else if (category === 'hogar') {
+                subcategorySelect.innerHTML += `
+                    <option value="Muebles">Muebles</option>
+                    <option value="Decoración">Decoración</option>
+                    <option value="Cocina">Cocina</option>
+                    <option value="Baño">Baño</option>
+                `;
+            } else if (category === 'deportes') {
+                subcategorySelect.innerHTML += `
+                    <option value="Fútbol">Fútbol</option>
+                    <option value="Béisbol">Béisbol</option>
+                    <option value="Basketball">Basketball</option>
+                    <option value="Fitness">Fitness</option>
+                `;
+            }
+            
+            // Habilitar el select de subcategoría
+            subcategorySelect.disabled = false;
+            console.log('Subcategorías cargadas:', subcategorySelect.innerHTML);
+        }
+
+        // Cargar subcategorías para edición
+        function loadEditSubcategories() {
+            const category = document.getElementById('editCategorySelect').value;
+            const subcategorySelect = document.getElementById('editSubcategorySelect');
+            
+            subcategorySelect.innerHTML = '<option value="">Seleccionar subcategoría</option>';
+            
+            if (category === 'alimentos') {
+                subcategorySelect.innerHTML += `
+                    <option value="Carnes">Carnes</option>
+                    <option value="Lácteos">Lácteos</option>
+                    <option value="Frutas & Verduras">Frutas & Verduras</option>
+                    <option value="Panadería">Panadería</option>
+                    <option value="Mariscos">Mariscos</option>
+                    <option value="Congelados">Congelados</option>
+                `;
+            } else if (category === 'materiales') {
+                subcategorySelect.innerHTML += `
+                    <option value="Construcción">Construcción</option>
+                    <option value="Pintura">Pintura</option>
+                    <option value="Madera">Madera</option>
+                    <option value="Metal">Metal</option>
+                `;
+            } else if (category === 'ferreteria') {
+                subcategorySelect.innerHTML += `
+                    <option value="Herramientas">Herramientas</option>
+                    <option value="Tornillos">Tornillos</option>
+                    <option value="Clavos">Clavos</option>
+                    <option value="Candados">Candados</option>
+                `;
+            } else if (category === 'farmacia') {
+                subcategorySelect.innerHTML += `
+                    <option value="Medicamentos">Medicamentos</option>
+                    <option value="Vitaminas">Vitaminas</option>
+                    <option value="Primeros Auxilios">Primeros Auxilios</option>
+                    <option value="Cuidado Personal">Cuidado Personal</option>
+                `;
+            } else if (category === 'electronicos') {
+                subcategorySelect.innerHTML += `
+                    <option value="Teléfonos">Teléfonos</option>
+                    <option value="Computadoras">Computadoras</option>
+                    <option value="Accesorios">Accesorios</option>
+                    <option value="Electrodomésticos">Electrodomésticos</option>
+                `;
+            } else if (category === 'ropa') {
+                subcategorySelect.innerHTML += `
+                    <option value="Hombre">Hombre</option>
+                    <option value="Mujer">Mujer</option>
+                    <option value="Niños">Niños</option>
+                    <option value="Accesorios">Accesorios</option>
+                `;
+            } else if (category === 'hogar') {
+                subcategorySelect.innerHTML += `
+                    <option value="Muebles">Muebles</option>
+                    <option value="Decoración">Decoración</option>
+                    <option value="Cocina">Cocina</option>
+                    <option value="Baño">Baño</option>
+                `;
+            } else if (category === 'deportes') {
+                subcategorySelect.innerHTML += `
+                    <option value="Fútbol">Fútbol</option>
+                    <option value="Béisbol">Béisbol</option>
+                    <option value="Basketball">Basketball</option>
+                    <option value="Fitness">Fitness</option>
+                `;
+            }
+            
+            // Habilitar el select de subcategoría
+            subcategorySelect.disabled = false;
+        }
+
+        // Preview de imagen al agregar
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Preview de imagen al editar
+        function previewEditImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('editPreviewImg').src = e.target.result;
+                    document.getElementById('editImagePreview').style.display = 'block';
+                    document.querySelector('#editImagePreview button').style.display = 'inline-block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Remover imagen en edición
+        function removeEditImage() {
+            document.getElementById('editProductImage').value = '';
+            document.getElementById('editPreviewImg').src = '';
+            document.getElementById('editImagePreview').style.display = 'none';
+            document.querySelector('#editImagePreview button').style.display = 'none';
+        }
+
+        // Mostrar modal de agregar producto
+        function showAddProductModal() {
+            // Limpiar formulario
+            document.getElementById('addProductForm').reset();
+            document.getElementById('subcategorySelect').innerHTML = '<option value="">Primero selecciona una categoría</option>';
+            document.getElementById('subcategorySelect').disabled = true;
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('customTagsContainer').innerHTML = '';
+            
+            // Limpiar checkboxes de etiquetas
+            document.querySelectorAll('input[name="tags"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Limpiar checkboxes de métodos de envío
+            document.querySelectorAll('input[name="shipping_methods"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            console.log('Modal de agregar producto inicializado');
+            
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
+            modal.show();
+        }
+
+        // Agregar producto
+        async function addProduct() {
+            const form = document.getElementById('addProductForm');
+            const formData = new FormData(form);
+            
+            // Obtener métodos de envío seleccionados
+            const shippingMethods = [];
+            document.querySelectorAll('input[name="shipping_methods"]:checked').forEach(checkbox => {
+                shippingMethods.push(checkbox.value);
+            });
+            
+            // Obtener etiquetas seleccionadas
+            const tags = [];
+            document.querySelectorAll('input[name="tags"]:checked').forEach(checkbox => {
+                tags.push(checkbox.value);
+            });
+            
+            // Obtener etiquetas personalizadas
+            const customTags = document.querySelectorAll('#customTagsContainer .badge');
+            customTags.forEach(tag => {
+                tags.push(tag.textContent);
+            });
+            
+            // Convertir imagen a base64 si existe
+            let imageBase64 = '';
+            const imageFile = formData.get('image');
+            if (imageFile && imageFile.size > 0) {
+                imageBase64 = await fileToBase64(imageFile);
+            }
+            
+            const productData = {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                price: parseFloat(formData.get('price')),
+                category: formData.get('category'),
+                subcategory: formData.get('subcategory'),
+                stock: parseInt(formData.get('stock')),
+                weight: parseFloat(formData.get('weight')) || null,
+                shipping_cost: parseFloat(formData.get('shipping_cost')) || 0,
+                vendor_id: formData.get('vendor_id'),
+                shipping_methods: shippingMethods,
+                tags: tags,
+                image_base64: imageBase64
+            };
+            
+            try {
+                const response = await fetch('/admin/api/products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(productData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Producto agregado exitosamente');
+                    bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+                    loadProductsData();
+                } else {
+                    showError('Error al agregar producto: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión al agregar producto');
+            }
+        }
+
+        // Editar producto
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            currentEditProduct = product;
+            
+            // Mostrar información del propietario
+            displayProductOwnerInfo(product);
+            
+            // Llenar formulario de edición
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('editName').value = product.name;
+            document.getElementById('editDescription').value = product.description || '';
+            document.getElementById('editPrice').value = product.price;
+            document.getElementById('editStock').value = product.stock;
+            document.getElementById('editWeight').value = product.weight || '';
+            document.getElementById('editShippingCost').value = product.shipping_cost || '';
+            
+            // Categoría
+            document.getElementById('editCategorySelect').value = product.category || '';
+            loadEditSubcategories();
+            setTimeout(() => {
+                document.getElementById('editSubcategorySelect').value = product.subcategory || '';
+            }, 100);
+            
+            // Imagen actual
+            if (product.image_url) {
+                document.getElementById('editPreviewImg').src = product.image_url;
+                document.getElementById('editImagePreview').style.display = 'block';
+            } else {
+                document.getElementById('editImagePreview').style.display = 'none';
+            }
+            
+            new bootstrap.Modal(document.getElementById('editProductModal')).show();
+        }
+
+        // Actualizar producto
+        async function updateProduct() {
+            const form = document.getElementById('editProductForm');
+            const formData = new FormData(form);
+            
+            // Obtener métodos de envío seleccionados
+            const shippingMethods = [];
+            document.querySelectorAll('#editProductForm input[name="shipping_methods"]:checked').forEach(checkbox => {
+                shippingMethods.push(checkbox.value);
+            });
+            
+            // Obtener etiquetas seleccionadas
+            const tags = [];
+            document.querySelectorAll('#editProductForm input[name="tags"]:checked').forEach(checkbox => {
+                tags.push(checkbox.value);
+            });
+            
+            // Obtener etiquetas personalizadas
+            const customTags = document.querySelectorAll('#editCustomTagsContainer .badge');
+            customTags.forEach(tag => {
+                tags.push(tag.textContent);
+            });
+            
+            // Convertir imagen a base64 si existe
+            let imageBase64 = '';
+            const imageFile = formData.get('image');
+            if (imageFile && imageFile.size > 0) {
+                imageBase64 = await fileToBase64(imageFile);
+            }
+            
+            const productData = {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                price: parseFloat(formData.get('price')),
+                category: formData.get('category'),
+                subcategory: formData.get('subcategory'),
+                stock: parseInt(formData.get('stock')),
+                weight: parseFloat(formData.get('weight')) || null,
+                shipping_cost: parseFloat(formData.get('shipping_cost')) || 0,
+                vendor_id: formData.get('vendor_id'),
+                shipping_methods: shippingMethods,
+                tags: tags,
+                image_base64: imageBase64
+            };
+            
+            const productId = document.getElementById('editProductId').value;
+            
+            try {
+                const response = await fetch(`/admin/api/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(productData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Producto actualizado exitosamente');
+                    bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+                    loadProductsData();
+                } else {
+                    showError('Error al actualizar producto: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión al actualizar producto');
+            }
+        }
+
+        // Eliminar producto
+        async function deleteProduct(productId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/admin/api/products/${productId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Producto eliminado exitosamente');
+                    loadProductsData();
+                } else {
+                    showError('Error al eliminar producto: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión al eliminar producto');
+            }
+        }
+
+        // Convertir archivo a base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // Actualizar productos
+        function refreshProducts() {
+            loadProductsData();
+        }
+
+        // Filter products
+        function filterProducts() {
+            const searchTerm = document.getElementById('searchProducts').value.toLowerCase();
+            const categoryFilter = document.getElementById('filterCategory').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const ownerFilter = document.getElementById('filterOwner').value;
+            
+            let filtered = products.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
+                                    (product.description && product.description.toLowerCase().includes(searchTerm));
+                
+                const matchesCategory = !categoryFilter || product.category === categoryFilter;
+                
+                const matchesStatus = !statusFilter || 
+                                    (statusFilter === 'active' && product.is_active) ||
+                                    (statusFilter === 'inactive' && !product.is_active);
+                
+                const matchesOwner = !ownerFilter || getProductOwnerType(product) === ownerFilter;
+                
+                return matchesSearch && matchesCategory && matchesStatus && matchesOwner;
+            });
+            
+            displayProducts(filtered);
+        }
+
+        // Clear all filters
+        function clearFilters() {
+            document.getElementById('searchProducts').value = '';
+            document.getElementById('filterCategory').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterOwner').value = '';
+            displayProducts(products);
+        }
+
+        // Mostrar mensaje de éxito
+        function showSuccess(message) {
+            // Crear toast de éxito
+            const toast = document.createElement('div');
+            toast.className = 'toast align-items-center text-white bg-success border-0';
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-check-circle me-2"></i>${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            
+            // Remover del DOM después de que se oculte
+            toast.addEventListener('hidden.bs.toast', () => {
+                document.body.removeChild(toast);
+            });
+        }
+
+        // Mostrar mensaje de error
+        function showError(message) {
+            // Crear toast de error
+            const toast = document.createElement('div');
+            toast.className = 'toast align-items-center text-white bg-danger border-0';
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-exclamation-circle me-2"></i>${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            
+            // Remover del DOM después de que se oculte
+            toast.addEventListener('hidden.bs.toast', () => {
+                document.body.removeChild(toast);
+            });
+        }
+
+        // Funciones para etiquetas personalizadas
+        function addCustomTag() {
+            const input = document.getElementById('customTag');
+            const tagText = input.value.trim();
+            
+            if (tagText) {
+                const container = document.getElementById('customTagsContainer');
+                const tagId = 'custom_tag_' + Date.now();
+                
+                const tagHtml = `
+                    <span class="badge bg-secondary me-1 mb-1" id="${tagId}">
+                        ${tagText}
+                        <button type="button" class="btn-close btn-close-white ms-1" onclick="removeCustomTag('${tagId}')" style="font-size: 0.7em;"></button>
+                    </span>
+                `;
+                
+                container.insertAdjacentHTML('beforeend', tagHtml);
+                input.value = '';
+            }
+        }
+
+        function removeCustomTag(tagId) {
+            const tag = document.getElementById(tagId);
+            if (tag) {
+                tag.remove();
+            }
+        }
+
+        function addEditCustomTag() {
+            const input = document.getElementById('editCustomTag');
+            const tagText = input.value.trim();
+            
+            if (tagText) {
+                const container = document.getElementById('editCustomTagsContainer');
+                const tagId = 'edit_custom_tag_' + Date.now();
+                
+                const tagHtml = `
+                    <span class="badge bg-secondary me-1 mb-1" id="${tagId}">
+                        ${tagText}
+                        <button type="button" class="btn-close btn-close-white ms-1" onclick="removeCustomTag('${tagId}')" style="font-size: 0.7em;"></button>
+                    </span>
+                `;
+                
+                container.insertAdjacentHTML('beforeend', tagHtml);
+                input.value = '';
+            }
+        }
+
+        // Permitir agregar etiquetas con Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            const customTagInput = document.getElementById('customTag');
+            const editCustomTagInput = document.getElementById('editCustomTag');
+            
+            if (customTagInput) {
+                customTagInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addCustomTag();
+                    }
+                });
+            }
+            
+            if (editCustomTagInput) {
+                editCustomTagInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addEditCustomTag();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+                });
+            }
+        });
+    </script>
+</body>
+</html>

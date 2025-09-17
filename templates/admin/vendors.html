@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.app_name }} - Gestión de Vendedores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin-common.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-3">
+                <div class="text-center mb-4">
+                    <img src="/static/img/company-logo.svg" alt="Cubalink23 Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4 class="text-white">{{ config.app_name }}</h4>
+                    <small class="text-white-50">Panel de Administración</small>
+                </div>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="/admin/">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="/admin/users">
+                        <i class="fas fa-users me-2"></i> Usuarios
+                    </a>
+                    <a class="nav-link" href="/admin/products">
+                        <i class="fas fa-box me-2"></i> Productos
+                    </a>
+                    <a class="nav-link" href="/admin/orders">
+                        <i class="fas fa-shopping-cart me-2"></i> Órdenes
+                    </a>
+                    <a class="nav-link" href="/admin/flights">
+                        <i class="fas fa-plane me-2"></i> Vuelos
+                    </a>
+                    <a class="nav-link" href="/admin/system">
+                        <i class="fas fa-cog me-2"></i> Sistema
+                    </a>
+                    <a class="nav-link active" href="/admin/vendors">
+                        <i class="fas fa-store me-2"></i> Vendedores
+                    </a>
+                    <a class="nav-link" href="/admin/drivers">
+                        <i class="fas fa-motorcycle me-2"></i> Repartidores
+                    </a>
+                    <a class="nav-link" href="/admin/vehicles">
+                        <i class="fas fa-car me-2"></i> Renta Car
+                    </a>
+                    <a class="nav-link" href="/admin/support-chat">
+                        <i class="fas fa-headset me-2"></i> Chat de Soporte
+                    </a>
+                    <a class="nav-link" href="/admin/alerts">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Alertas
+                    </a>
+                    <a class="nav-link" href="/admin/wallet">
+                        <i class="fas fa-wallet me-2"></i> Billetera
+                    </a>
+                    <a class="nav-link" href="/admin/payment-methods">
+                        <i class="fas fa-credit-card me-2"></i> Métodos de Pago
+                    </a>
+                    <a class="nav-link" href="/admin/payroll">
+                        <i class="fas fa-money-bill-wave me-2"></i> Nómina
+                    </a>
+                    <a class="nav-link mt-4" href="/auth/logout">
+                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-store"></i> Gestión de Vendedores</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshVendors()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn btn-success" onclick="showAddVendorModal()">
+                            <i class="fas fa-plus"></i> Agregar Vendedor
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-store fa-2x text-primary mb-2"></i>
+                                <h3 id="total-vendors">-</h3>
+                                <p class="mb-0">Vendedores Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                                <h3 id="pending-approvals">-</h3>
+                                <p class="mb-0">Pendientes de Aprobación</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                <h3 id="active-vendors">-</h3>
+                                <p class="mb-0">Vendedores Activos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-stats">
+                            <div class="card-body text-center">
+                                <i class="fas fa-dollar-sign fa-2x text-info mb-2"></i>
+                                <h3 id="total-commissions">-</h3>
+                                <p class="mb-0">Comisiones Totales</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="card card-stats mb-4">
+                    <div class="card-header">
+                        <h5 class="text-white"><i class="fas fa-bell text-white"></i> Configuración de Notificaciones con Sonido</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="alert alert-info" style="background-color: #0f3460; border-color: #0f3460;">
+                                    <h6 class="text-white"><i class="fas fa-volume-up"></i> Notificaciones con Sonido</h6>
+                                    <p class="text-white mb-2">Los vendedores reciben notificaciones con sonido para:</p>
+                                    <ul class="text-white">
+                                        <li>Nuevos pedidos</li>
+                                        <li>Pedidos pendientes de procesar</li>
+                                        <li>Mensajes del administrador</li>
+                                        <li>Alertas de demora</li>
+                                        <li>Recordatorios de entrega</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-warning" style="background-color: #0f3460; border-color: #0f3460;">
+                                    <h6 class="text-white"><i class="fas fa-phone"></i> Configuración de Permisos</h6>
+                                    <p class="text-white mb-2">Permisos requeridos en la app móvil:</p>
+                                    <ul class="text-white">
+                                        <li>Acceso a tonos del teléfono</li>
+                                        <li>Reproducción de audio en segundo plano</li>
+                                        <li>Sobrescribir modo silencio</li>
+                                        <li>Notificaciones push</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button class="btn btn-success" onclick="testNotificationSound()">
+                                    <i class="fas fa-play"></i> Probar Sonido de Notificación
+                                </button>
+                                <button class="btn btn-primary" onclick="sendTestNotification()">
+                                    <i class="fas fa-paper-plane"></i> Enviar Notificación de Prueba
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <ul class="nav nav-tabs mb-4" id="vendorTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="all-vendors-tab" data-bs-toggle="tab" data-bs-target="#all-vendors" type="button" role="tab">
+                            <i class="fas fa-list"></i> Todos los Vendedores
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                            <i class="fas fa-clock"></i> Pendientes de Aprobación
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="commissions-tab" data-bs-toggle="tab" data-bs-target="#commissions" type="button" role="tab">
+                            <i class="fas fa-percentage"></i> Comisiones
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="vendorTabContent">
+                    <!-- All Vendors Tab -->
+                    <div class="tab-pane fade show active" id="all-vendors" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-list"></i> Lista de Vendedores</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Vendedor</th>
+                                                <th>Tienda</th>
+                                                <th>Productos</th>
+                                                <th>Ventas</th>
+                                                <th>Comisión</th>
+                                                <th>Estado</th>
+                                                <th>Método Pago</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="vendors-table">
+                                            <tr>
+                                                <td colspan="9" class="text-center">
+                                                    <div class="spinner-border" role="status">
+                                                        <span class="visually-hidden">Cargando...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pending Approvals Tab -->
+                    <div class="tab-pane fade" id="pending" role="tabpanel">
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-clock"></i> Vendedores Pendientes de Aprobación</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Vendedor</th>
+                                                <th>Tienda</th>
+                                                <th>Documentos</th>
+                                                <th>Fecha Solicitud</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="pending-vendors-table">
+                                            <tr>
+                                                <td colspan="6" class="text-center">No hay vendedores pendientes de aprobación</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Commissions Tab -->
+                    <div class="tab-pane fade" id="commissions" role="tabpanel">
+                        <div class="alert alert-warning mb-3">
+                            <h6><i class="fas fa-exclamation-triangle me-2"></i>Sistema de Sanciones</h6>
+                            <p class="mb-0">Si vendedor no procesa pedido a tiempo: sistema transmite mensaje obligándolo a procesar. A la 4ª vez del mismo problema → <strong>VENDEDOR SUSPENDIDO</strong> automáticamente.</p>
+                        </div>
+                        <div class="card card-stats">
+                            <div class="card-header">
+                                <h5><i class="fas fa-percentage"></i> Gestión de Comisiones</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Vendedor</th>
+                                                <th>Ventas del Mes</th>
+                                                <th>Comisión (%)</th>
+                                                <th>Comisión Total</th>
+                                                <th>Estado Pago</th>
+                                                <th>Infracciones</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="commissions-table">
+                                            <tr>
+                                                <td>María García</td>
+                                                <td>25</td>
+                                                <td>10%</td>
+                                                <td>$250.00</td>
+                                                <td><span class="badge bg-success">Pagado</span></td>
+                                                <td><span class="badge bg-success">0</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary">Ver Detalles</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Vendor Modal -->
+    <div class="modal fade" id="addVendorModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Vendedor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addVendorForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre Completo</label>
+                                    <input type="text" class="form-control" name="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" name="phone" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre de la Tienda</label>
+                                    <input type="text" class="form-control" name="store_name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Comisión (%)</label>
+                                    <input type="number" class="form-control" name="commission" min="0" max="100" step="0.1" value="10">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Método de Pago</label>
+                                    <select class="form-select" name="payment_method">
+                                        <option value="cash">Efectivo (CASH)</option>
+                                        <option value="card">Tarjeta</option>
+                                        <option value="transfer">Transferencia</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción de la Tienda</label>
+                            <textarea class="form-control" name="description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="addVendor()">Agregar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVendorsData();
+        });
+
+        function loadVendorsData() {
+            // Simular carga de datos
+            document.getElementById('total-vendors').textContent = '0';
+            document.getElementById('pending-approvals').textContent = '0';
+            document.getElementById('active-vendors').textContent = '0';
+            document.getElementById('total-commissions').textContent = '$0';
+            
+            // Simular tabla vacía
+            document.getElementById('vendors-table').innerHTML = 
+                '<tr><td colspan="9" class="text-center">No hay vendedores registrados</td></tr>';
+        }
+
+        function refreshVendors() {
+            loadVendorsData();
+        }
+
+        function showAddVendorModal() {
+            new bootstrap.Modal(document.getElementById('addVendorModal')).show();
+        }
+
+        function addVendor() {
+            const form = document.getElementById('addVendorForm');
+            const formData = new FormData(form);
+            
+            // Aquí iría la lógica para agregar vendedor
+            alert('Vendedor agregado correctamente');
+            
+            // Cerrar modal y recargar datos
+            bootstrap.Modal.getInstance(document.getElementById('addVendorModal')).hide();
+            loadVendorsData();
+        }
+
+        function approveVendor(vendorId) {
+            if (confirm('¿Estás seguro de que quieres aprobar este vendedor?')) {
+                // Aquí iría la lógica para aprobar vendedor
+                alert('Vendedor aprobado correctamente');
+                loadVendorsData();
+            }
+        }
+
+        function rejectVendor(vendorId) {
+            if (confirm('¿Estás seguro de que quieres rechazar este vendedor?')) {
+                // Aquí iría la lógica para rechazar vendedor
+                alert('Vendedor rechazado');
+                loadVendorsData();
+            }
+        }
+
+        // Funciones para notificaciones con sonido
+        function testNotificationSound() {
+            // Simular sonido de notificación
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+            audio.play().catch(e => {
+                console.log('Audio playback failed:', e);
+                alert('Sonido de notificación reproducido (simulado)');
+            });
+            
+            // Mostrar notificación visual
+            showNotification('🔔 Sonido de Notificación', 'Se reprodujo el sonido de notificación para vendedores');
+        }
+
+        function sendTestNotification() {
+            // Simular envío de notificación push con sonido
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('📱 Notificación de Prueba', {
+                    body: 'Esta es una notificación de prueba para vendedores con sonido',
+                    icon: '/static/img/notification-icon.png',
+                    tag: 'test-notification'
+                });
+            }
+            
+            showNotification('📤 Notificación Enviada', 'Se envió notificación de prueba a todos los vendedores activos');
+        }
+
+        function showNotification(title, message) {
+            // Crear notificación toast
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = `
+                <div style="position: fixed; top: 20px; right: 20px; background: #0f3460; color: white; padding: 15px; border-radius: 5px; z-index: 9999; max-width: 300px;">
+                    <strong>${title}</strong><br>
+                    ${message}
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            // Remover después de 3 segundos
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

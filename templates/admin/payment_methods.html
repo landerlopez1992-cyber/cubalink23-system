@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Métodos de Pago - Panel Administrativo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin-common.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <img src="/static/img/company-logo.svg" alt="Cubalink23 Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                        <h4 class="text-white">Cubalink23 Admin</h4>
+                        <small class="text-white-50">Panel de Administración</small>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/users">
+                                <i class="fas fa-users me-2"></i>
+                                Usuarios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/products">
+                                <i class="fas fa-box me-2"></i>
+                                Productos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/orders">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Órdenes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/flights">
+                                <i class="fas fa-plane me-2"></i>
+                                Vuelos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/system">
+                                <i class="fas fa-cog me-2"></i>
+                                Sistema
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/vendors">
+                                <i class="fas fa-store me-2"></i>
+                                Vendedores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/drivers">
+                                <i class="fas fa-truck me-2"></i>
+                                Repartidores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/vehicles">
+                                <i class="fas fa-car me-2"></i>
+                                Renta Car
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/alerts">
+                                <i class="fas fa-bell me-2"></i>
+                                Alertas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/support-chat">
+                                <i class="fas fa-comments me-2"></i>
+                                Chat Soporte
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/wallet">
+                                <i class="fas fa-wallet me-2"></i>
+                                Billetera
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white active" href="/admin/payment-methods">
+                                <i class="fas fa-credit-card me-2"></i>
+                                Métodos de Pago
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/payroll">
+                                <i class="fas fa-money-bill-wave me-2"></i>
+                                Nómina
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/system-rules">
+                                <i class="fas fa-book me-2"></i>
+                                Reglas del Sistema
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link text-danger" href="/logout">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="background-color: #1a1a2e;">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2 text-white">
+                        <i class="fas fa-credit-card text-white me-2"></i>
+                        Métodos de Pago
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addMethodModal">
+                                <i class="fas fa-plus me-1"></i>
+                                Agregar Método
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportPaymentData()">
+                                <i class="fas fa-download me-1"></i>
+                                Exportar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card payment-card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-credit-card fa-2x mb-3 text-primary"></i></h5>
+                                <p class="card-text fs-4" id="total-methods">0</p>
+                                <p class="card-text">Métodos Activos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card payment-card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-money-bill-wave fa-2x mb-3 text-success"></i></h5>
+                                <p class="card-text fs-4" id="cash-payments">0</p>
+                                <p class="card-text">Pagos en Efectivo</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card payment-card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-credit-card fa-2x mb-3 text-info"></i></h5>
+                                <p class="card-text fs-4" id="card-payments">0</p>
+                                <p class="card-text">Pagos con Tarjeta</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card payment-card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-users fa-2x mb-3 text-warning"></i></h5>
+                                <p class="card-text fs-4" id="users-cash">0</p>
+                                <p class="card-text">Usuarios con Efectivo</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods Configuration -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card payment-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-cog me-2"></i>
+                                    Configuración de Métodos de Pago
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- CASH Method -->
+                                    <div class="col-md-6">
+                                        <div class="method-card" id="cashMethodCard">
+                                            <div class="text-center">
+                                                <div class="method-icon text-success">
+                                                    <i class="fas fa-money-bill-wave"></i>
+                                                </div>
+                                                <h5>Pago en Efectivo (CASH)</h5>
+                                                <p class="text-muted">Permitir pagos en efectivo para vendedores y repartidores</p>
+                                                
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span>Estado:</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="cashToggle" onchange="toggleCashMethod()">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span>Vendedores:</span>
+                                                    <span class="badge bg-success" id="vendorsCashStatus">Habilitado</span>
+                                                </div>
+                                                
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>Repartidores:</span>
+                                                    <span class="badge bg-success" id="driversCashStatus">Habilitado</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- CARD Method -->
+                                    <div class="col-md-6">
+                                        <div class="method-card active" id="cardMethodCard">
+                                            <div class="text-center">
+                                                <div class="method-icon text-primary">
+                                                    <i class="fas fa-credit-card"></i>
+                                                </div>
+                                                <h5>Tarjeta de Crédito/Débito</h5>
+                                                <p class="text-muted">Pagos con tarjeta de crédito o débito</p>
+                                                
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span>Estado:</span>
+                                                    <span class="badge bg-success">Siempre Activo</span>
+                                                </div>
+                                                
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span>Vendedores:</span>
+                                                    <span class="badge bg-success">Habilitado</span>
+                                                </div>
+                                                
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>Repartidores:</span>
+                                                    <span class="badge bg-success">Habilitado</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Payment Preferences -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card payment-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-users me-2"></i>
+                                    Preferencias de Pago por Usuario
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Usuario</th>
+                                                <th>Tipo</th>
+                                                <th>Método Preferido</th>
+                                                <th>Efectivo Habilitado</th>
+                                                <th>Último Pago</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="userPreferencesTable">
+                                            <!-- User preferences will be loaded here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment History -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card payment-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-history me-2"></i>
+                                    Historial de Pagos Recientes
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="payment-history" id="paymentHistory">
+                                    <!-- Payment history will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Add Method Modal -->
+    <div class="modal fade" id="addMethodModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i>
+                        Agregar Método de Pago
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addMethodForm">
+                        <div class="mb-3">
+                            <label for="methodName" class="form-label">Nombre del Método:</label>
+                            <input type="text" class="form-control" id="methodName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="methodType" class="form-label">Tipo:</label>
+                            <select class="form-select" id="methodType" required>
+                                <option value="">Seleccionar tipo</option>
+                                <option value="cash">Efectivo</option>
+                                <option value="card">Tarjeta</option>
+                                <option value="digital">Digital</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="methodDescription" class="form-label">Descripción:</label>
+                            <textarea class="form-control" id="methodDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="methodUsers" class="form-label">Usuarios Aplicables:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="vendorsCheck" checked>
+                                <label class="form-check-label" for="vendorsCheck">
+                                    Vendedores
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="driversCheck" checked>
+                                <label class="form-check-label" for="driversCheck">
+                                    Repartidores
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="addPaymentMethod()">
+                        <i class="fas fa-plus me-2"></i>
+                        Agregar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPaymentStats();
+            loadUserPreferences();
+            loadPaymentHistory();
+            loadCashMethodStatus();
+        });
+
+        // Load payment statistics
+        function loadPaymentStats() {
+            fetch('/admin/api/payment-methods/stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('total-methods').textContent = data.total_methods || 0;
+                    document.getElementById('cash-payments').textContent = data.cash_payments || 0;
+                    document.getElementById('card-payments').textContent = data.card_payments || 0;
+                    document.getElementById('users-cash').textContent = data.users_cash || 0;
+                })
+                .catch(error => console.error('Error loading payment stats:', error));
+        }
+
+        // Load user payment preferences
+        function loadUserPreferences() {
+            fetch('/admin/api/payment-methods/user-preferences')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('userPreferencesTable');
+                    tbody.innerHTML = '';
+                    
+                    data.preferences.forEach(pref => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar me-2">
+                                        ${pref.user_name.charAt(0).toUpperCase()}
+                                    </div>
+                                    ${pref.user_name}
+                                </div>
+                            </td>
+                            <td><span class="badge bg-${getUserTypeColor(pref.user_type)} user-type-badge">${pref.user_type}</span></td>
+                            <td><span class="badge bg-${getMethodColor(pref.preferred_method)}">${pref.preferred_method}</span></td>
+                            <td>
+                                <span class="badge bg-${pref.cash_enabled ? 'success' : 'danger'}">
+                                    ${pref.cash_enabled ? 'Sí' : 'No'}
+                                </span>
+                            </td>
+                            <td>${new Date(pref.last_payment).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editUserPreference(${pref.user_id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning" onclick="toggleUserCash(${pref.user_id})">
+                                    <i class="fas fa-toggle-on"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error loading user preferences:', error));
+        }
+
+        // Load payment history
+        function loadPaymentHistory() {
+            fetch('/admin/api/payment-methods/payment-history')
+                .then(response => response.json())
+                .then(data => {
+                    const historyDiv = document.getElementById('paymentHistory');
+                    historyDiv.innerHTML = '';
+                    
+                    data.history.forEach(payment => {
+                        const paymentDiv = document.createElement('div');
+                        paymentDiv.className = 'd-flex justify-content-between align-items-center p-3 border-bottom';
+                        paymentDiv.innerHTML = `
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas fa-${getPaymentIcon(payment.method)} text-${getMethodColor(payment.method)}"></i>
+                                </div>
+                                <div>
+                                    <strong>${payment.user_name}</strong>
+                                    <br>
+                                    <small class="text-muted">${payment.description}</small>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold">$${payment.amount.toFixed(2)}</div>
+                                <small class="text-muted">${new Date(payment.timestamp).toLocaleString()}</small>
+                            </div>
+                        `;
+                        historyDiv.appendChild(paymentDiv);
+                    });
+                })
+                .catch(error => console.error('Error loading payment history:', error));
+        }
+
+        // Load cash method status
+        function loadCashMethodStatus() {
+            fetch('/admin/api/payment-methods/cash-status')
+                .then(response => response.json())
+                .then(data => {
+                    const cashToggle = document.getElementById('cashToggle');
+                    const cashMethodCard = document.getElementById('cashMethodCard');
+                    
+                    cashToggle.checked = data.cash_enabled;
+                    
+                    if (data.cash_enabled) {
+                        cashMethodCard.className = 'method-card active';
+                        document.getElementById('vendorsCashStatus').textContent = 'Habilitado';
+                        document.getElementById('driversCashStatus').textContent = 'Habilitado';
+                    } else {
+                        cashMethodCard.className = 'method-card inactive';
+                        document.getElementById('vendorsCashStatus').textContent = 'Deshabilitado';
+                        document.getElementById('driversCashStatus').textContent = 'Deshabilitado';
+                    }
+                })
+                .catch(error => console.error('Error loading cash status:', error));
+        }
+
+        // Toggle cash method
+        function toggleCashMethod() {
+            const cashToggle = document.getElementById('cashToggle');
+            const enabled = cashToggle.checked;
+            
+            fetch('/admin/api/payment-methods/toggle-cash', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enabled: enabled })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadCashMethodStatus();
+                    loadPaymentStats();
+                    alert(enabled ? 'Pago en efectivo habilitado' : 'Pago en efectivo deshabilitado');
+                } else {
+                    alert('Error: ' + data.message);
+                    cashToggle.checked = !enabled; // Revert toggle
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error cambiando estado del método de pago');
+                cashToggle.checked = !enabled; // Revert toggle
+            });
+        }
+
+        // Add payment method
+        function addPaymentMethod() {
+            const name = document.getElementById('methodName').value;
+            const type = document.getElementById('methodType').value;
+            const description = document.getElementById('methodDescription').value;
+            const vendors = document.getElementById('vendorsCheck').checked;
+            const drivers = document.getElementById('driversCheck').checked;
+
+            if (!name || !type) {
+                alert('Por favor completa todos los campos requeridos');
+                return;
+            }
+
+            fetch('/admin/api/payment-methods/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: name,
+                    type: type,
+                    description: description,
+                    vendors: vendors,
+                    drivers: drivers
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Método de pago agregado exitosamente');
+                    bootstrap.Modal.getInstance(document.getElementById('addMethodModal')).hide();
+                    loadPaymentStats();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error agregando método de pago');
+            });
+        }
+
+        // Edit user preference
+        function editUserPreference(userId) {
+            // Implement user preference editing
+            alert('Editar preferencias para usuario ' + userId);
+        }
+
+        // Toggle user cash
+        function toggleUserCash(userId) {
+            fetch(`/admin/api/payment-methods/toggle-user-cash/${userId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadUserPreferences();
+                    alert('Preferencia de efectivo actualizada');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error actualizando preferencia');
+            });
+        }
+
+        // Export payment data
+        function exportPaymentData() {
+            fetch('/admin/api/payment-methods/export')
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'payment_methods_data.csv';
+                    a.click();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error exportando datos');
+                });
+        }
+
+        // Helper functions
+        function getUserTypeColor(type) {
+            const colors = {
+                'vendor': 'success',
+                'driver': 'warning',
+                'user': 'primary',
+                'admin': 'danger'
+            };
+            return colors[type] || 'secondary';
+        }
+
+        function getMethodColor(method) {
+            const colors = {
+                'cash': 'success',
+                'card': 'primary',
+                'digital': 'info'
+            };
+            return colors[method] || 'secondary';
+        }
+
+        function getPaymentIcon(method) {
+            const icons = {
+                'cash': 'money-bill-wave',
+                'card': 'credit-card',
+                'digital': 'mobile-alt'
+            };
+            return icons[method] || 'money-bill';
+        }
+    </script>
+</body>
+</html>

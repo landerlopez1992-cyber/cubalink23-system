@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.app_name }} - Gestión de Colecciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin-common.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-3">
+                <div class="text-center mb-4">
+                    <img src="/static/img/company-logo.svg" alt="Cubalink23 Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4 class="text-white">{{ config.app_name }}</h4>
+                    <small class="text-white-50">Panel de Administración</small>
+                </div>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="/admin/">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="/admin/users">
+                        <i class="fas fa-users me-2"></i> Usuarios
+                    </a>
+                    <a class="nav-link" href="/admin/products">
+                        <i class="fas fa-box me-2"></i> Productos
+                    </a>
+                    <a class="nav-link active" href="/admin/collections">
+                        <i class="fas fa-layer-group me-2"></i> Colecciones
+                    </a>
+                    <a class="nav-link" href="/admin/orders">
+                        <i class="fas fa-shopping-cart me-2"></i> Órdenes
+                    </a>
+                    <a class="nav-link" href="/admin/flights">
+                        <i class="fas fa-plane me-2"></i> Vuelos
+                    </a>
+                    <a class="nav-link" href="/admin/system">
+                        <i class="fas fa-cog me-2"></i> Sistema
+                    </a>
+                    <a class="nav-link" href="/admin/vendors">
+                        <i class="fas fa-store me-2"></i> Vendedores
+                    </a>
+                    <a class="nav-link" href="/admin/drivers">
+                        <i class="fas fa-motorcycle me-2"></i> Repartidores
+                    </a>
+                    <a class="nav-link" href="/admin/vehicles">
+                        <i class="fas fa-car me-2"></i> Renta Car
+                    </a>
+                    <a class="nav-link" href="/admin/support-chat">
+                        <i class="fas fa-headset me-2"></i> Chat de Soporte
+                    </a>
+                    <a class="nav-link" href="/admin/alerts">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Alertas
+                    </a>
+                    <a class="nav-link" href="/admin/wallet">
+                        <i class="fas fa-wallet me-2"></i> Billetera
+                    </a>
+                    <a class="nav-link" href="/admin/payment-methods">
+                        <i class="fas fa-credit-card me-2"></i> Métodos de Pago
+                    </a>
+                    <a class="nav-link" href="/admin/payroll">
+                        <i class="fas fa-money-bill-wave me-2"></i> Nómina
+                    </a>
+                    <a class="nav-link mt-4" href="/auth/logout">
+                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-layer-group"></i> Mis Colecciones</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshCollections()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn btn-success" onclick="showAddCollectionModal()">
+                            <i class="fas fa-plus"></i> Crear una Colección
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchCollections" placeholder="Buscar colecciones..." onkeyup="filterCollections()">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterStatus" onchange="filterCollections()">
+                            <option value="">Todas las colecciones</option>
+                            <option value="active">Listadas</option>
+                            <option value="inactive">No listadas</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="sortCollections" onchange="sortCollections()">
+                            <option value="name">Ordenar por nombre</option>
+                            <option value="products">Ordenar por productos</option>
+                            <option value="created">Más reciente</option>
+                            <option value="oldest">Más antiguo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Collections Grid -->
+                <div class="row" id="collectionsContainer">
+                    <!-- Collections will be loaded here -->
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingCollections" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando colecciones...</span>
+                    </div>
+                    <p class="mt-3">Cargando colecciones...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyCollections" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-layer-group fa-3x text-muted mb-3"></i>
+                    <h4>No hay colecciones</h4>
+                    <p class="text-muted">Crea tu primera colección para organizar tus productos</p>
+                    <button class="btn btn-success" onclick="showAddCollectionModal()">
+                        <i class="fas fa-plus"></i> Crear Colección
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Collection Modal -->
+    <div class="modal fade" id="addCollectionModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plus"></i> Crear Colección</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCollectionForm">
+                        <!-- Primera fila: Título y Ordenamiento -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Título de la Colección</label>
+                                <input type="text" class="form-control" name="title" maxlength="32" required>
+                                <small class="text-muted">Máximo 32 caracteres</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Ordenar Productos</label>
+                                <select class="form-select" name="sort_order">
+                                    <option value="newest">Más reciente</option>
+                                    <option value="oldest">Más antiguo</option>
+                                    <option value="price_low">Precio Bajo - Alto</option>
+                                    <option value="price_high">Precio Alto - Bajo</option>
+                                    <option value="name_asc">Títulos de productos de la A a la Z</option>
+                                    <option value="name_desc">Títulos de productos de la Z a la A</option>
+                                    <option value="manual">Manual</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Segunda fila: Descripción -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" name="description" rows="3" placeholder="Descripción de la colección..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Tercera fila: Imagen y Configuración -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Imagen de la Colección</label>
+                                <div class="border rounded p-4 text-center" style="min-height: 200px; background-color: #f8f9fa;">
+                                    <div id="collectionImagePreview" style="display: none;">
+                                        <img id="previewCollectionImg" src="" alt="Preview" style="max-width: 100%; max-height: 180px; border-radius: 5px;">
+                                    </div>
+                                    <div id="collectionImagePlaceholder">
+                                        <i class="fas fa-image fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">Imagen de la colección</p>
+                                        <input type="file" class="form-control" name="image" id="collectionImage" accept="image/*" onchange="previewCollectionImage(this)" style="display: none;">
+                                        <button type="button" class="btn btn-primary" onclick="document.getElementById('collectionImage').click()">
+                                            <i class="fas fa-upload"></i> Examinar...
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary ms-2">
+                                            <i class="fas fa-images"></i> Biblioteca
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Configuración</label>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" name="show_in_menu" id="showInMenu">
+                                    <label class="form-check-label" for="showInMenu">
+                                        Mostrar la colección en el menú
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" name="is_active" id="isActive" checked>
+                                    <label class="form-check-label" for="isActive">
+                                        Colección activa
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="featured" id="featured">
+                                    <label class="form-check-label" for="featured">
+                                        Colección destacada
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cuarta fila: SEO -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">SEO</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Título Meta</label>
+                                        <input type="text" class="form-control" name="meta_title" placeholder="Título para motores de búsqueda">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Descripción Meta</label>
+                                        <input type="text" class="form-control" name="meta_description" placeholder="Descripción para motores de búsqueda">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quinta fila: Productos -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">Productos de la Colección</label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" class="form-control" id="searchProductsForCollection" placeholder="Buscar productos para agregar...">
+                                    <button type="button" class="btn btn-success" onclick="addProductToCollection()">
+                                        <i class="fas fa-plus"></i> Añadir un producto
+                                    </button>
+                                </div>
+                                <div id="collectionProductsList" class="border rounded p-3" style="min-height: 100px; background-color: #f8f9fa;">
+                                    <p class="text-muted text-center">No hay productos en esta colección</p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="addCollection()">
+                        <i class="fas fa-save"></i> Guardar Colección
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Collection Modal -->
+    <div class="modal fade" id="editCollectionModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit"></i> Editar Colección</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editCollectionForm">
+                        <input type="hidden" id="editCollectionId" name="id">
+                        <!-- Same form structure as add collection -->
+                        <!-- Content will be populated by JavaScript -->
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="updateCollection()">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Collection Products Modal -->
+    <div class="modal fade" id="viewCollectionProductsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-box"></i> Productos de la Colección</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" id="searchCollectionProducts" placeholder="Buscar productos...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="filterCollectionProducts">
+                                <option value="">Todos los productos</option>
+                                <option value="active">Activos</option>
+                                <option value="inactive">Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-success w-100" onclick="addProductToCollection()">
+                                <i class="fas fa-plus"></i> Agregar Producto
+                            </button>
+                        </div>
+                    </div>
+                    <div id="collectionProductsTable">
+                        <!-- Products will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let collections = [];
+        let allProducts = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCollections();
+            loadAllProducts();
+        });
+
+        // Load collections from backend
+        async function loadCollections() {
+            try {
+                const response = await fetch('/admin/api/collections');
+                const result = await response.json();
+                
+                if (result.success) {
+                    collections = result.collections;
+                    displayCollections(collections);
+                } else {
+                    showError('Error al cargar colecciones: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión al cargar colecciones');
+            }
+        }
+
+        // Load all products for collection management
+        async function loadAllProducts() {
+            try {
+                const response = await fetch('/admin/api/products');
+                const result = await response.json();
+                
+                if (result.success) {
+                    allProducts = result.products;
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        // Display collections in grid
+        function displayCollections(collectionsList) {
+            const container = document.getElementById('collectionsContainer');
+            const loading = document.getElementById('loadingCollections');
+            const empty = document.getElementById('emptyCollections');
+            
+            loading.style.display = 'none';
+            
+            if (collectionsList.length === 0) {
+                empty.style.display = 'block';
+                container.innerHTML = '';
+                return;
+            }
+            
+            empty.style.display = 'none';
+            
+            container.innerHTML = collectionsList.map(collection => `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card collection-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="collection-image">
+                                    ${collection.image_url ? 
+                                        `<img src="${collection.image_url}" alt="${collection.title}" class="img-fluid rounded" style="width: 60px; height: 60px; object-fit: cover;">` :
+                                        `<div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                            <i class="fas fa-layer-group text-muted"></i>
+                                        </div>`
+                                    }
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="viewCollectionProducts('${collection.id}')">
+                                            <i class="fas fa-eye me-2"></i> Ver Productos
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="editCollection('${collection.id}')">
+                                            <i class="fas fa-edit me-2"></i> Editar
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteCollection('${collection.id}')">
+                                            <i class="fas fa-trash me-2"></i> Eliminar
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <h5 class="card-title">${collection.title}</h5>
+                            <p class="card-text text-muted">${collection.description || 'Sin descripción'}</p>
+                            
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="border-end">
+                                        <h6 class="mb-1">${collection.product_count || 0}</h6>
+                                        <small class="text-muted">Productos</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-2">
+                                        <span class="badge ${collection.show_in_menu ? 'bg-success' : 'bg-secondary'}">
+                                            ${collection.show_in_menu ? 'Listada' : 'No listada'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <button class="btn btn-outline-primary btn-sm w-100" onclick="viewCollectionProducts('${collection.id}')">
+                                    <i class="fas fa-box me-2"></i> Ver Productos
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter collections
+        function filterCollections() {
+            const searchTerm = document.getElementById('searchCollections').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+            
+            let filtered = collections.filter(collection => {
+                const matchesSearch = collection.title.toLowerCase().includes(searchTerm) ||
+                                    (collection.description && collection.description.toLowerCase().includes(searchTerm));
+                
+                const matchesStatus = !statusFilter || 
+                                    (statusFilter === 'active' && collection.show_in_menu) ||
+                                    (statusFilter === 'inactive' && !collection.show_in_menu);
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            displayCollections(filtered);
+        }
+
+        // Sort collections
+        function sortCollections() {
+            const sortBy = document.getElementById('sortCollections').value;
+            
+            let sorted = [...collections].sort((a, b) => {
+                switch(sortBy) {
+                    case 'name':
+                        return a.title.localeCompare(b.title);
+                    case 'products':
+                        return (b.product_count || 0) - (a.product_count || 0);
+                    case 'created':
+                        return new Date(b.created_at) - new Date(a.created_at);
+                    case 'oldest':
+                        return new Date(a.created_at) - new Date(b.created_at);
+                    default:
+                        return 0;
+                }
+            });
+            
+            displayCollections(sorted);
+        }
+
+        // Show add collection modal
+        function showAddCollectionModal() {
+            document.getElementById('addCollectionForm').reset();
+            document.getElementById('collectionImagePreview').style.display = 'none';
+            document.getElementById('collectionImagePlaceholder').style.display = 'block';
+            document.getElementById('collectionProductsList').innerHTML = '<p class="text-muted text-center">No hay productos en esta colección</p>';
+            
+            const modal = new bootstrap.Modal(document.getElementById('addCollectionModal'));
+            modal.show();
+        }
+
+        // Preview collection image
+        function previewCollectionImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewCollectionImg').src = e.target.result;
+                    document.getElementById('collectionImagePreview').style.display = 'block';
+                    document.getElementById('collectionImagePlaceholder').style.display = 'none';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Add collection
+        async function addCollection() {
+            const form = document.getElementById('addCollectionForm');
+            const formData = new FormData(form);
+            
+            // Get collection data
+            const collectionData = {
+                title: formData.get('title'),
+                description: formData.get('description'),
+                sort_order: formData.get('sort_order'),
+                show_in_menu: formData.get('show_in_menu') === 'on',
+                is_active: formData.get('is_active') === 'on',
+                featured: formData.get('featured') === 'on',
+                meta_title: formData.get('meta_title'),
+                meta_description: formData.get('meta_description'),
+                products: [] // Will be populated from collectionProductsList
+            };
+            
+            // Convert image to base64 if exists
+            let imageBase64 = '';
+            const imageFile = formData.get('image');
+            if (imageFile && imageFile.size > 0) {
+                imageBase64 = await fileToBase64(imageFile);
+            }
+            
+            collectionData.image_base64 = imageBase64;
+            
+            try {
+                const response = await fetch('/admin/api/collections', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(collectionData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Colección creada exitosamente');
+                    bootstrap.Modal.getInstance(document.getElementById('addCollectionModal')).hide();
+                    loadCollections();
+                } else {
+                    showError('Error al crear colección: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión al crear colección');
+            }
+        }
+
+        // View collection products
+        function viewCollectionProducts(collectionId) {
+            const collection = collections.find(c => c.id === collectionId);
+            if (collection) {
+                // Load products for this collection
+                loadCollectionProducts(collectionId);
+                
+                const modal = new bootstrap.Modal(document.getElementById('viewCollectionProductsModal'));
+                modal.show();
+            }
+        }
+
+        // Load collection products
+        async function loadCollectionProducts(collectionId) {
+            try {
+                const response = await fetch(`/admin/api/collections/${collectionId}/products`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayCollectionProducts(result.products);
+                } else {
+                    showError('Error al cargar productos de la colección');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión al cargar productos');
+            }
+        }
+
+        // Display collection products
+        function displayCollectionProducts(products) {
+            const container = document.getElementById('collectionProductsTable');
+            
+            if (products.length === 0) {
+                container.innerHTML = '<p class="text-center text-muted">No hay productos en esta colección</p>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Título</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${products.map(product => `
+                                <tr>
+                                    <td>
+                                        ${product.image_url ? 
+                                            `<img src="${product.image_url}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">` :
+                                            `<div style="width: 50px; height: 50px; background: #f8f9fa; border-radius: 5px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-image text-muted"></i>
+                                            </div>`
+                                        }
+                                    </td>
+                                    <td>
+                                        <strong>${product.name}</strong>
+                                        <br><small class="text-muted">${product.category} - ${product.subcategory}</small>
+                                    </td>
+                                    <td>$${product.price}</td>
+                                    <td>${product.stock}</td>
+                                    <td>
+                                        <span class="badge ${product.is_active ? 'bg-success' : 'bg-danger'}">
+                                            ${product.is_active ? 'Activo' : 'Inactivo'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="removeProductFromCollection('${product.id}')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // Utility functions
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function showSuccess(message) {
+            // Create and show success alert
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+            alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 5000);
+        }
+
+        function showError(message) {
+            // Create and show error alert
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+            alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 5000);
+        }
+
+        function refreshCollections() {
+            loadCollections();
+        }
+    </script>
+</body>
+</html>
