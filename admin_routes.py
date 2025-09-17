@@ -30,7 +30,7 @@ def get_admin_user_id():
     try:
         import requests
         SUPABASE_URL = 'https://zgqrhzuhrwudckwesybg.supabase.co'
-        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3OTI3OTgsImV4cCI6MjA3MTM2ODc5OH0.lUVK99zmOYD7bNTxilJZWHTmYPfZF5YeMJDVUaJ-FsQ'
+        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNjY2NDgyOSwiZXhwIjoyMDQyMjQwODI5fQ.nMhOYDNNfq8NMqXvJKJT8SjLFjZJmVP9gDGGfcE8xhQ'
         headers = {
             'apikey': SUPABASE_KEY,
             'Authorization': 'Bearer {}'.format(SUPABASE_KEY),
@@ -163,7 +163,7 @@ def get_orders():
     try:
         from supabase import create_client
         SUPABASE_URL = 'https://zgqrhzuhrwudckwesybg.supabase.co'
-        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3OTI3OTgsImV4cCI6MjA3MTM2ODc5OH0.lUVK99zmOYD7bNTxilJZWHTmYPfZF5YeMJDVUaJ-FsQ'
+        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNjY2NDgyOSwiZXhwIjoyMDQyMjQwODI5fQ.nMhOYDNNfq8NMqXvJKJT8SjLFjZJmVP9gDGGfcE8xhQ'
         
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
         result = supabase.table('orders').select('*').order('created_at', desc=True).execute()
@@ -179,7 +179,7 @@ def get_users():
     try:
         from supabase import create_client
         SUPABASE_URL = 'https://zgqrhzuhrwudckwesybg.supabase.co'
-        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3OTI3OTgsImV4cCI6MjA3MTM2ODc5OH0.lUVK99zmOYD7bNTxilJZWHTmYPfZF5YeMJDVUaJ-FsQ'
+        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNjY2NDgyOSwiZXhwIjoyMDQyMjQwODI5fQ.nMhOYDNNfq8NMqXvJKJT8SjLFjZJmVP9gDGGfcE8xhQ'
         
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
         result = supabase.table('users').select('*').order('created_at', desc=True).execute()
@@ -195,7 +195,7 @@ def get_products():
     try:
         from supabase import create_client
         SUPABASE_URL = 'https://zgqrhzuhrwudckwesybg.supabase.co'
-        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3OTI3OTgsImV4cCI6MjA3MTM2ODc5OH0.lUVK99zmOYD7bNTxilJZWHTmYPfZF5YeMJDVUaJ-FsQ'
+        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNjY2NDgyOSwiZXhwIjoyMDQyMjQwODI5fQ.nMhOYDNNfq8NMqXvJKJT8SjLFjZJmVP9gDGGfcE8xhQ'
         
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
         result = supabase.table('store_products').select('*').eq('is_active', True).execute()
@@ -213,7 +213,7 @@ def create_product():
         
         from supabase import create_client
         SUPABASE_URL = 'https://zgqrhzuhrwudckwesybg.supabase.co'
-        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3OTI3OTgsImV4cCI6MjA3MTM2ODc5OH0.lUVK99zmOYD7bNTxilJZWHTmYPfZF5YeMJDVUaJ-FsQ'
+        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNjY2NDgyOSwiZXhwIjoyMDQyMjQwODI5fQ.nMhOYDNNfq8NMqXvJKJT8SjLFjZJmVP9gDGGfcE8xhQ'
         
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
         result = supabase.table('store_products').insert(data).execute()
@@ -243,7 +243,7 @@ def notifications():
             try:
                 from supabase import create_client
                 SUPABASE_URL = 'https://zgqrhzuhrwudckwesybg.supabase.co'
-                SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3OTI3OTgsImV4cCI6MjA3MTM2ODc5OH0.lUVK99zmOYD7bNTxilJZWHTmYPfZF5YeMJDVUaJ-FsQ'
+                SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNjY2NDgyOSwiZXhwIjoyMDQyMjQwODI5fQ.nMhOYDNNfq8NMqXvJKJT8SjLFjZJmVP9gDGGfcE8xhQ'
                 
                 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
                 
@@ -275,7 +275,7 @@ def notifications():
         try:
             from supabase import create_client
             SUPABASE_URL = 'https://zgqrhzuhrwudckwesybg.supabase.co'
-            SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3OTI3OTgsImV4cCI6MjA3MTM2ODc5OH0.lUVK99zmOYD7bNTxilJZWHTmYPfZF5YeMJDVUaJ-FsQ'
+            SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNjY2NDgyOSwiZXhwIjoyMDQyMjQwODI5fQ.nMhOYDNNfq8NMqXvJKJT8SjLFjZJmVP9gDGGfcE8xhQ'
             
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
             result = supabase.table('notifications').select('*').order('created_at', desc=True).limit(50).execute()
@@ -294,7 +294,7 @@ def get_banners():
     try:
         from supabase import create_client
         SUPABASE_URL = 'https://zgqrhzuhrwudckwesybg.supabase.co'
-        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3OTI3OTgsImV4cCI6MjA3MTM2ODc5OH0.lUVK99zmOYD7bNTxilJZWHTmYPfZF5YeMJDVUaJ-FsQ'
+        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNjY2NDgyOSwiZXhwIjoyMDQyMjQwODI5fQ.nMhOYDNNfq8NMqXvJKJT8SjLFjZJmVP9gDGGfcE8xhQ'
         
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
         result = supabase.table('banners').select('*').order('sort_order').execute()
@@ -312,7 +312,7 @@ def create_banner():
         
         from supabase import create_client
         SUPABASE_URL = 'https://zgqrhzuhrwudckwesybg.supabase.co'
-        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3OTI3OTgsImV4cCI6MjA3MTM2ODc5OH0.lUVK99zmOYD7bNTxilJZWHTmYPfZF5YeMJDVUaJ-FsQ'
+        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNjY2NDgyOSwiZXhwIjoyMDQyMjQwODI5fQ.nMhOYDNNfq8NMqXvJKJT8SjLFjZJmVP9gDGGfcE8xhQ'
         
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
         result = supabase.table('banners').insert(data).execute()
@@ -390,7 +390,7 @@ def get_admin_stats():
     try:
         from supabase import create_client
         SUPABASE_URL = 'https://zgqrhzuhrwudckwesybg.supabase.co'
-        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3OTI3OTgsImV4cCI6MjA3MTM2ODc5OH0.lUVK99zmOYD7bNTxilJZWHTmYPfZF5YeMJDVUaJ-FsQ'
+        SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncXJoenVocnd1ZGNrd2VzeWJnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNjY2NDgyOSwiZXhwIjoyMDQyMjQwODI5fQ.nMhOYDNNfq8NMqXvJKJT8SjLFjZJmVP9gDGGfcE8xhQ'
         
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
         
